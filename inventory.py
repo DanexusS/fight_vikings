@@ -14,7 +14,7 @@ class ItemSlot:
 
 class ItemType(Enum):
     Food = 0
-    Armor = 1
+    Equipment = 1
 
 
 class Attributes(Enum):
@@ -25,11 +25,19 @@ class Attributes(Enum):
 
 
 class AbstractItem:
-    def __init__(self, item_type, is_stackable, item_id, title):
+    def __init__(self, item_type, item_id, title):
         self.item_type = item_type
-        self.is_stackable = is_stackable
         self.item_id = item_id
         self.title = title
+
+
+class EquipmentObject(AbstractItem):
+    def __init__(self, item_type, item_id, title, *buffs):
+        super().__init__(item_type, item_id, title)
+
+        self.type = ItemType.Equipment
+        self.buffs = buffs
+        self.is_stackable = False
 
 
 class AbstractUsingItem(AbstractItem):
@@ -38,20 +46,17 @@ class AbstractUsingItem(AbstractItem):
 
 
 class FoodItem(AbstractUsingItem):
-    def __init__(self, item_type, is_stackable, item_id, title):
-        super().__init__(item_type, is_stackable, item_id, title)
+    def __init__(self, item_type, item_id, title):
+        super().__init__(item_type, item_id, title)
 
         self.type = ItemType.Food
+        self.is_stackable = True
 
     def use_item(self):
         print("used item food")
 
 
 class ItemBuff:
-    def __init__(self, value, affected_attributes):
-        self.affected_attributes = affected_attributes
+    def __init__(self, affected_attribute, value):
+        self.affected_attribute = affected_attribute
         self.value = value
-
-
-for shake in ItemType:
-    print(shake)
