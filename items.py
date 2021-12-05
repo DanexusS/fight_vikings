@@ -1,4 +1,5 @@
 from enum import Enum
+from inventory import Attributes
 
 
 class ItemType(Enum):
@@ -9,15 +10,22 @@ class ItemType(Enum):
     Potion = 3
 
 
+class ItemBuff:
+    def __init__(self, affected_attribute: Attributes, value: int):
+        self.affected_attribute = affected_attribute
+        self.value = value
+
+
 class AbstractItem:
-    def __init__(self, item_id, title):
+    def __init__(self, item_id: int, title: str):
         self.item_id = item_id
         self.title = title
         self.is_stackable = True
+        self.item_type = ItemType.Null
 
 
 class AbstractUsingItem(AbstractItem):
-    def __init__(self, item_id, title, use_key):
+    def __init__(self, item_id: int, title: str, use_key):
         super().__init__(item_id, title)
 
         self.use_key = use_key
@@ -28,7 +36,7 @@ class AbstractUsingItem(AbstractItem):
 
 #   КЛАСС СНАРЯЖЕНИЯ
 class EquipmentObject(AbstractItem):
-    def __init__(self, item_type, item_id, title, buffs, durability):
+    def __init__(self, item_type: ItemType, item_id: int, title: str, durability: int, buffs: list[ItemBuff] = None):
         super().__init__(item_id, title)
 
         self.type = item_type
@@ -39,7 +47,7 @@ class EquipmentObject(AbstractItem):
 
 #   КЛАСС ЕДЫ
 class FoodObject(AbstractUsingItem):
-    def __init__(self, item_id, title, use_key):
+    def __init__(self, item_id: int, title: str, use_key):
         super().__init__(item_id, title, use_key)
 
         self.type = ItemType.Food
@@ -49,14 +57,8 @@ class FoodObject(AbstractUsingItem):
 
 
 class PotionObject(AbstractUsingItem):
-    def __init__(self, item_id, title, use_key, buff):
+    def __init__(self, item_id: int, title: str, use_key, buff: ItemBuff):
         super().__init__(item_id, title, use_key)
 
         self.type = ItemType.Potion
         self.buff = buff
-
-
-class ItemBuff:
-    def __init__(self, affected_attribute, value):
-        self.affected_attribute = affected_attribute
-        self.value = value
