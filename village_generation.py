@@ -85,28 +85,40 @@ class Village:
                     y1 = self.top + i * self.cell_size
                     if x1 == int(x) and int(y) < y1 < self.height * self.cell_size - int(y):
                         self.board[i][f"{x1} {y1}"] = 'road'
-        # Генерация площади
-        ready = False
+        # Генерация площади и домов
+        coords_for_gen = []
         for i in range(self.height):
             for j in range(self.width):
-                if (6 < i < self.height - 6) and (6 < j < self.width - 6):
+                if (2 < i < self.height - 2) and (2 < j < self.width - 2):
                     # Координаты
                     x0, x1, x2 = self.top + (j - 1) * self.cell_size, self.top + j * self.cell_size, self.top + (j + 1) * self.cell_size
                     y0, y1, y2 = self.top + (i - 1) * self.cell_size, self.top + i * self.cell_size, self.top + (i + 1) * self.cell_size
-                    coords_empty = [(i - 1, f"{x0} {y0}"), (i - 1, f"{x1} {y0}"), (i - 1, f"{x2} {y0}"),
-                                    (i, f"{x0} {y1}"), (i, f"{x1} {y1}"), (i, f"{x2} {y1}"),
-                                    (i + 1, f"{x0} {y2}"), (i + 1, f"{x1} {y2}"), (i + 1, f"{x2} {y2}")]
-                    coords_road = [all([self.board[i - 2][f"{x1} {y0 - self.cell_size}"] == 'road', self.board[i + 2][f"{x1} {y2 + self.cell_size}"] == 'road']),
-                                   all([self.board[i][f"{x0 - self.cell_size} {y1}"] == 'road', self.board[i][f"{x2 + self.cell_size} {y1}"] == 'road'])]
+                    coords_empty = [(i - 1, f"{x0} {y0}", j), (i - 1, f"{x1} {y0}", j), (i - 1, f"{x2} {y0}", j),
+                                    (i, f"{x0} {y1}", j), (i, f"{x1} {y1}", j), (i, f"{x2} {y1}", j),
+                                    (i + 1, f"{x0} {y2}", j), (i + 1, f"{x1} {y2}", j), (i + 1, f"{x2} {y2}", j)]
+                    coords_road_bool = any([any([self.board[i - 2][f"{x1} {y0 - self.cell_size}"] == 'road', self.board[i + 2][f"{x1} {y2 + self.cell_size}"] == 'road']),
+                                       any([self.board[i][f"{x0 - self.cell_size} {y1}"] == 'road', self.board[i][f"{x2 + self.cell_size} {y1}"] == 'road'])])
                     # Заполнение клеток дорогами
-                    if all(list(map(lambda x: not bool(self.board[x[0]][x[1]]), coords_empty))) and any(coords_road):
-                        for coord in coords_empty:
-                            self.board[coord[0]][coord[1]] = 'road'
-                            ready = True
-                if ready:
-                    break
-            if ready:
+                    if all(list(map(lambda x: not bool(self.board[x[0]][x[1]]), coords_empty))) and coords_road_bool:
+                        coords_for_gen.append(coords_empty)
+        while True:
+            num = random.randrange(len(coords_for_gen))
+            test = coords_for_gen[num]
+            print(test)
+            if (N // 2.5 < test[4][0] < self.height - N // 2.5) and (N // 2.5 < test[4][2] < self.width - N // 2.5):
+                coords_square = coords_for_gen.pop(num)
                 break
+        for coord in coords_square:
+            self.board[coord[0]][coord[1]] = 'road'
+        for coords in coords_for_gen:
+            count = 0
+            for i, coord in enumerate(coords):
+                if i == 4:
+                    cell = coord
+                elif self.board[coord[0]][coord[1]] != 'road':
+                    count += 1
+            if count == 8:
+                self.board[cell[0]][cell[1]] = 'house'
         # далее ---
 
 
