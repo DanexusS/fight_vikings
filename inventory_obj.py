@@ -1,10 +1,6 @@
 from items import *
 
 
-class IncorrectInventorySize(Exception):
-    pass
-
-
 class InventorySlot:
     def __init__(self, item: AbstractItem, amount: int, allowed_types: list[ItemType] = None):
         if allowed_types is None:
@@ -32,7 +28,7 @@ class Inventory:
     def __init__(self, size: int):
         self.slots = []
         for slot in range(size):
-            self.slots.append(InventorySlot(AbstractItem(-1, ""), 0))
+            self.slots.append(InventorySlot(AbstractItem(), 0))
 
     def clear(self):
         self.slots = []
@@ -76,9 +72,9 @@ class Inventory:
                 slot.update_slot()
 
     @staticmethod
-    def swap_item(item1: InventorySlot, item2: InventorySlot):
-        if item2.can_place_in_slot(item1.item) and item1.can_place_in_slot(item2.item):
-            temp_slot = InventorySlot(item2.item, item2.amount)
+    def swap_item(slot1: InventorySlot, slot2: InventorySlot):
+        if slot2.can_place_in_slot(slot1.item) and slot1.can_place_in_slot(slot2.item):
+            temp_slot = InventorySlot(slot2.item, slot2.amount)
 
-            item2.update_slot(item1.item, item1.amount)
-            item1.update_slot(temp_slot.item, temp_slot.amount)
+            slot2.update_slot(slot1.item, slot1.amount)
+            slot1.update_slot(temp_slot.item, temp_slot.amount)

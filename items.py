@@ -23,16 +23,16 @@ class ItemBuff:
 
 
 class AbstractItem:
-    def __init__(self, item_id: int, title: str):
-        self.ID = item_id
+    def __init__(self, title: str = ""):
+        self.ID = -1
         self.TYPE = ItemType.Null
         self.title = title
         self.is_stackable = True
 
 
 class AbstractUsingItem(AbstractItem):
-    def __init__(self, item_id: int, title: str, use_key):
-        super().__init__(item_id, title)
+    def __init__(self, title: str, use_key):
+        super().__init__(title)
 
         self.use_key = use_key
 
@@ -41,9 +41,9 @@ class AbstractUsingItem(AbstractItem):
 
 
 #   КЛАСС СНАРЯЖЕНИЯ
-class EquipmentObject(AbstractItem):
-    def __init__(self, item_type: ItemType, item_id: int, title: str, durability: int, buffs: list[ItemBuff] = None):
-        super().__init__(item_id, title)
+class EquipmentItem(AbstractItem):
+    def __init__(self, item_type: ItemType, title: str, durability: int, buffs: list[ItemBuff] = None):
+        super().__init__(title)
 
         self.TYPE = item_type
         self.buffs = buffs
@@ -52,9 +52,9 @@ class EquipmentObject(AbstractItem):
 
 
 #   КЛАСС ЕДЫ
-class FoodObject(AbstractUsingItem):
-    def __init__(self, item_id: int, title: str, use_key):
-        super().__init__(item_id, title, use_key)
+class FoodItem(AbstractUsingItem):
+    def __init__(self, title: str, use_key):
+        super().__init__(title, use_key)
 
         self.TYPE = ItemType.Food
 
@@ -62,9 +62,12 @@ class FoodObject(AbstractUsingItem):
         print("used item food")
 
 
-class PotionObject(AbstractUsingItem):
-    def __init__(self, item_id: int, title: str, use_key, buff: ItemBuff):
-        super().__init__(item_id, title, use_key)
+class PotionItem(AbstractUsingItem):
+    def __init__(self, title: str, use_key, buff: ItemBuff):
+        super().__init__(title, use_key)
 
         self.TYPE = ItemType.Potion
         self.buff = buff
+
+    def use_item(self):
+        print("used item potion")
