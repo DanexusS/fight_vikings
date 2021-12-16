@@ -3,15 +3,32 @@ import random
 
 
 # Константы
-N = 20
-CELL_SIZE = 40
-MIN_ROAD = 2
-MAX_ROAD = 4
+N = random.randrange(20, 30, 2)
+CELL_SIZE = 30
+
+MIN_ROAD = N // 10
+MAX_ROAD = MIN_ROAD * 2
+MASK = N // 5
+
+COLOR_HOUSE = (116, 73, 42)
+COLOR_ROAD = (164, 138, 106)
+COLOR_GRASS = (75, 126, 58)
+COLOR_TOWN = (0, 156, 108)
 
 pygame.init()
 size = width, height = N * CELL_SIZE, N * CELL_SIZE
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Деревня')
+
+
+def add_roads(other, x, y, x_or_y):
+    for i in range(other.height):
+        for j in range(other.width):
+            x1 = other.left + j * other.cell_size
+            y1 = other.top + i * other.cell_size
+            if (x_or_y == 'y' and y1 == int(y) and int(x) < x1 < other.width * other.cell_size - int(x)) or \
+                    (x_or_y == 'x' and x1 == int(x) and int(y) < y1 < other.height * other.cell_size - int(y)):
+                other.board[i][f"{x1} {y1}"] = 'road'
 
 
 class Village:
@@ -22,10 +39,6 @@ class Village:
         self.left = 0
         self.top = 0
         self.cell_size = CELL_SIZE
-        # Цвета
-        self.COLOR_HOUSE = (116, 73, 42)
-        self.COLOR_ROAD = (164, 138, 106)
-        self.COLOR_GRASS = (75, 126, 58)
         # Матрица
         self.board = []
         for i in range(self.height):
@@ -45,46 +58,42 @@ class Village:
         self.generation()
 
     def generation(self):
-        # Списки крайних трёх линий клеток с каждой стороны
+        # Списки крайних n линий клеток с каждой стороны
         extreme_coords_ud = []
         extreme_coords_lr = []
         for i in range(self.height):
             for j in range(self.width):
                 x = self.left + j * self.cell_size
                 y = self.top + i * self.cell_size
-                if (0 < i < 4) and (4 < j < self.width - 5) and \
+                if (0 < i < MASK) and (MASK < j < self.width - MASK) and \
                         (not f"{x + self.cell_size} {y}" in extreme_coords_ud and not f"{x - self.cell_size} {y}" in extreme_coords_ud and
                          not f"{x + self.cell_size * 2} {y}" in extreme_coords_ud and not f"{x - self.cell_size * 2} {y}" in extreme_coords_ud and
                          not f"{x + self.cell_size * 3} {y}" in extreme_coords_ud and not f"{x - self.cell_size * 3} {y}" in extreme_coords_ud):
                     extreme_coords_ud.append(f"{x} {y}")
-                if (0 < j < 4) and (4 < i < self.height - 5) and \
+                if (0 < j < MASK) and (MASK < i < self.height - MASK) and \
                         (not f"{x} {y + self.cell_size}" in extreme_coords_lr and not f"{x} {y - self.cell_size}" in extreme_coords_lr and
                          not f"{x} {y + self.cell_size * 2}" in extreme_coords_lr and not f"{x} {y - self.cell_size * 2}" in extreme_coords_lr and
                          not f"{x} {y + self.cell_size * 3}" in extreme_coords_lr and not f"{x} {y - self.cell_size * 3}" in extreme_coords_lr):
                     extreme_coords_lr.append(f"{x} {y}")
         # Спавн дорог
+        # H
         for _ in range(random.randint(MIN_ROAD, MAX_ROAD)):
+            # Возможны ошибки, хотя возможно и нет
             try:
                 x, y = extreme_coords_lr.pop(random.randint(0, len(extreme_coords_lr) - 1)).split()
             except Exception:
                 print(extreme_coords_lr)
-            for i in range(self.height):
-                for j in range(self.width):
-                    x1 = self.left + j * self.cell_size
-                    y1 = self.top + i * self.cell_size
-                    if y1 == int(y) and int(x) < x1 < self.width * self.cell_size - int(x):
-                        self.board[i][f"{x1} {y1}"] = 'road'
+            # Прокладывание дороги в матрице
+            add_roads(self, x, y, 'y')
+        # W
         for _ in range(random.randint(MIN_ROAD, MAX_ROAD)):
+            # Возможны ошибки, хотя возможно и нет
             try:
                 x, y = extreme_coords_ud.pop(random.randint(0, len(extreme_coords_lr) - 1)).split()
             except Exception:
                 print(extreme_coords_ud)
-            for i in range(self.height):
-                for j in range(self.width):
-                    x1 = self.left + j * self.cell_size
-                    y1 = self.top + i * self.cell_size
-                    if x1 == int(x) and int(y) < y1 < self.height * self.cell_size - int(y):
-                        self.board[i][f"{x1} {y1}"] = 'road'
+            # Прокладывание дороги в матрице
+            add_roads(self, x, y, 'x')
         # Генерация площади и домов
         coords_for_gen = []
         for i in range(self.height):
@@ -101,15 +110,17 @@ class Village:
                     # Заполнение клеток дорогами
                     if all(list(map(lambda x: not bool(self.board[x[0]][x[1]]), coords_empty))) and coords_road_bool:
                         coords_for_gen.append(coords_empty)
-        while True:
+        # Поиск места для площади
+        coords_square = None
+        while coords_square is None:
             num = random.randrange(len(coords_for_gen))
             test = coords_for_gen[num]
-            print(test)
             if (N // 2.5 < test[4][0] < self.height - N // 2.5) and (N // 2.5 < test[4][2] < self.width - N // 2.5):
                 coords_square = coords_for_gen.pop(num)
-                break
+        # Спавн площади
         for coord in coords_square:
             self.board[coord[0]][coord[1]] = 'road'
+        # Спавн домов
         for coords in coords_for_gen:
             count = 0
             for i, coord in enumerate(coords):
@@ -117,9 +128,34 @@ class Village:
                     cell = coord
                 elif self.board[coord[0]][coord[1]] != 'road':
                     count += 1
-            if count == 8:
+            if count == 8 and random.randint(1, 4) != 1:
                 self.board[cell[0]][cell[1]] = 'house'
-        # далее ---
+        # Спавн ратуши
+        for _ in range(4):
+            x_or_y = random.choice(['x', 'y'])
+            num = random.choice([3, -3])
+            coords_txt = list(map(int, coords_square[4][1].split()))
+            if (x_or_y == 'y' and self.board[coords_square[4][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"] == 'road') or \
+                    (x_or_y == 'x' and self.board[coords_square[4][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"] == 'road'):
+                break
+        for coord in coords_square:
+            coords_txt = list(map(int, coord[1].split()))
+            if x_or_y == 'x':
+                coord_i = coord[0]
+                coord_x = coords_txt[0] + CELL_SIZE * num
+                coord_y = coords_txt[1]
+            if x_or_y == 'y':
+                coord_i = coord[0] + num
+                coord_x = coords_txt[0]
+                coord_y = coords_txt[1] + CELL_SIZE * num
+            if (x_or_y == 'x' and num == 3 and coords_txt[0] == int(coords_square[0][1].split()[0])) or \
+                    ((x_or_y == 'x' and num == -3 and coords_txt[0] == int(coords_square[2][1].split()[0])) or
+                     (x_or_y == 'y' and num == 3 and coord[0] == coords_square[0][0]) or
+                     (x_or_y == 'y' and num == -3 and coord[0] == coords_square[6][0])):
+                self.board[coord_i][f"{coord_x} {coord_y}"] = 'road'
+            else:
+                self.board[coord_i][f"{coord_x} {coord_y}"] = 'town'
+        # ---
 
 
     def render(self, screen):
@@ -127,13 +163,15 @@ class Village:
         x = self.left
         y = self.top
         for i in range(self.height):
-            for j in range(self.width):
+            for _ in range(self.width):
                 if self.board[i][f"{x} {y}"] == 'house':
-                    pygame.draw.rect(screen, self.COLOR_HOUSE, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_HOUSE, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
                 elif self.board[i][f"{x} {y}"] == 'road':
-                    pygame.draw.rect(screen, self.COLOR_ROAD, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_ROAD, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                elif self.board[i][f"{x} {y}"] == 'town':
+                    pygame.draw.rect(screen, COLOR_TOWN, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
                 else:
-                    pygame.draw.rect(screen, self.COLOR_GRASS, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_GRASS, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
                 x += self.cell_size
             x = self.left
             y += self.cell_size
