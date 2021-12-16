@@ -135,8 +135,8 @@ class Village:
             x_or_y = random.choice(['x', 'y'])
             num = random.choice([3, -3])
             coords_txt = list(map(int, coords_square[4][1].split()))
-            if (x_or_y == 'y' and self.board[coords_square[4][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"] == 'road') or \
-                    (x_or_y == 'x' and self.board[coords_square[4][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"] == 'road'):
+            if (x_or_y == 'y' and self.board[coords_square[4][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"] != 'road') or \
+                    (x_or_y == 'x' and self.board[coords_square[4][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"] != 'road'):
                 break
         for coord in coords_square:
             coords_txt = list(map(int, coord[1].split()))
