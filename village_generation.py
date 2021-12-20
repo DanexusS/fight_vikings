@@ -9,6 +9,7 @@ CELL_SIZE = 30
 MIN_ROAD = N // 10
 MAX_ROAD = MIN_ROAD * 2
 MASK = N // 5
+RANGE_SQUARE = N // 2.5
 
 COLOR_HOUSE = (116, 73, 42)
 COLOR_ROAD = (164, 138, 106)
@@ -58,6 +59,7 @@ class Village:
         self.generation()
 
     def generation(self):
+        center = 4
         # Списки крайних n линий клеток с каждой стороны
         extreme_coords_ud = []
         extreme_coords_lr = []
@@ -75,7 +77,7 @@ class Village:
                          not f"{x} {y + self.cell_size * 2}" in extreme_coords_lr and not f"{x} {y - self.cell_size * 2}" in extreme_coords_lr and
                          not f"{x} {y + self.cell_size * 3}" in extreme_coords_lr and not f"{x} {y - self.cell_size * 3}" in extreme_coords_lr):
                     extreme_coords_lr.append(f"{x} {y}")
-        # Спавн дорог
+        # Спавн дорог -----------------------------------------
         # H
         for _ in range(random.randint(MIN_ROAD, MAX_ROAD)):
             # Возможны ошибки, хотя возможно и нет
@@ -94,7 +96,7 @@ class Village:
                 print(extreme_coords_ud)
             # Прокладывание дороги в матрице
             add_roads(self, x, y, 'x')
-        # Генерация площади и домов
+        # Нахождение клеток в которых можно спавнить площадь ратушу и дома -----------------------------------------
         coords_for_gen = []
         for i in range(self.height):
             for j in range(self.width):
@@ -110,17 +112,18 @@ class Village:
                     # Заполнение клеток дорогами
                     if all(list(map(lambda x: not bool(self.board[x[0]][x[1]]), coords_empty))) and coords_road_bool:
                         coords_for_gen.append(coords_empty)
+        # Спавн площади -----------------------------------------
         # Поиск места для площади
         coords_square = None
         while coords_square is None:
             num = random.randrange(len(coords_for_gen))
             test = coords_for_gen[num]
-            if (N // 2.5 < test[4][0] < self.height - N // 2.5) and (N // 2.5 < test[4][2] < self.width - N // 2.5):
+            if (RANGE_SQUARE < test[center][0] < self.height - RANGE_SQUARE) and (RANGE_SQUARE < test[center][2] < self.width - RANGE_SQUARE):
                 coords_square = coords_for_gen.pop(num)
-        # Спавн площади
+        # Заполнение клеток дорогами
         for coord in coords_square:
             self.board[coord[0]][coord[1]] = 'road'
-        # Спавн домов
+        # Спавн домов -----------------------------------------
         for coords in coords_for_gen:
             count = 0
             for i, coord in enumerate(coords):
@@ -130,14 +133,21 @@ class Village:
                     count += 1
             if count == 8 and random.randint(1, 4) != 1:
                 self.board[cell[0]][cell[1]] = 'house'
-        # Спавн ратуши
+        # Спавн ратуши -----------------------------------------
+        # Выбор с какой стороны от площади будет ратуша
         for _ in range(4):
             x_or_y = random.choice(['x', 'y'])
             num = random.choice([3, -3])
-            coords_txt = list(map(int, coords_square[4][1].split()))
-            if (x_or_y == 'y' and self.board[coords_square[4][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"] != 'road') or \
-                    (x_or_y == 'x' and self.board[coords_square[4][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"] != 'road'):
+            coords_txt = list(map(int, coords_square[center][1].split()))
+            # Проверка что ратуша не перекрывает не одну из дорог
+            if ((x_or_y == 'y' and \
+                    (self.board[coords_square[center][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"] != 'road' and
+                     self.board[coords_square[center][0] + (num // 3 * 4)][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * (num // 3 * 4)}"] != 'road') or
+                     (x_or_y == 'x' and
+                      self.board[coords_square[center][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"] != 'road' and
+                      self.board[coords_square[center][0]][f"{coords_txt[0] + CELL_SIZE * (num // 3 * 4)} {coords_txt[1]}"] != 'road'))):
                 break
+        # Заполнение клеток ратуши
         for coord in coords_square:
             coords_txt = list(map(int, coord[1].split()))
             if x_or_y == 'x':
@@ -155,6 +165,18 @@ class Village:
                 self.board[coord_i][f"{coord_x} {coord_y}"] = 'road'
             else:
                 self.board[coord_i][f"{coord_x} {coord_y}"] = 'town'
+        # Удаление домов впритык к ратуше
+        x, y = list(map(int, coords_square[center][1].split()))
+        iy = coords_square[center][0]
+        if x_or_y == 'x':
+            x += CELL_SIZE * num
+        if x_or_y == 'y':
+            iy += num
+            y += CELL_SIZE * num
+        for i in range(-2, 3):
+            for j in range(-2, 3):
+                if self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] == 'house':
+                    self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = 'grass'
         # ---
 
 
@@ -164,14 +186,15 @@ class Village:
         y = self.top
         for i in range(self.height):
             for _ in range(self.width):
+                coords = (x, y, self.cell_size, self.cell_size)
                 if self.board[i][f"{x} {y}"] == 'house':
-                    pygame.draw.rect(screen, COLOR_HOUSE, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_HOUSE, coords)
                 elif self.board[i][f"{x} {y}"] == 'road':
-                    pygame.draw.rect(screen, COLOR_ROAD, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_ROAD, coords)
                 elif self.board[i][f"{x} {y}"] == 'town':
-                    pygame.draw.rect(screen, COLOR_TOWN, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_TOWN, coords)
                 else:
-                    pygame.draw.rect(screen, COLOR_GRASS, (x + 1, y + 1, self.cell_size - 1, self.cell_size - 1))
+                    pygame.draw.rect(screen, COLOR_GRASS, coords)
                 x += self.cell_size
             x = self.left
             y += self.cell_size
