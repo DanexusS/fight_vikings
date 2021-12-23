@@ -1,3 +1,15 @@
+"""
+    ВНИМАНИЕ! Для полноценной работы миссий нужно создать 'делегаты',
+    то есть списки функций и в ините нужных классов в них закладывать
+    функции check() из AbstractObjective
+    НАПРИМЕР:
+    в классе врага есть список функций и после его смерти проходимся
+    циклом по его елементам и вызываем их поочередно
+    (t = [test_func()]
+     t[0]())
+"""
+
+
 class AbstractObjective:
     def __init__(self, description):
         self.description = description
@@ -6,9 +18,7 @@ class AbstractObjective:
 
     def complete(self):
         self.is_completed = True
-        self.parent.current_objective_id += 1
-        if self.parent.current_objective_id > len(self.parent.objectives):
-            self.parent.complete()
+        self.parent.obj_completed()
 
     def __repr__(self):
         return self.description
@@ -21,6 +31,10 @@ class KillObjective(AbstractObjective):
 
         self.enemy_type = enemy_type
         self.amount = amount
+
+    def check(self, enemy_type):
+        if self.enemy_type == enemy_type:
+            self.complete()
 
 
 class DiscoverObjective(AbstractObjective):
@@ -40,13 +54,19 @@ class MissionObject:
         self.rewards = reward
         self.description = description
         self.is_completed = False
-        self.current_objective_id = 0
+        self.current_objective = self.objectives[0]
+
+    def obj_completed(self):
+        next_obj_id = self.objectives.index(self.current_objective) + 1
+
+        if next_obj_id < len(self.objectives):
+            self.current_objective = self.objectives[next_obj_id]
+        else:
+            self.current_objective = None
+            self.complete()
 
     def complete(self):
         pass
-
-    def current_objective(self):
-        return self.objectives[self.current_objective_id]
 
     def add(self, other):
         other.parent = self
@@ -56,13 +76,22 @@ class MissionObject:
         return self.title
 
 
+class PlayerMissionLogic:
+    def __init__(self, mission: MissionObject):
+        self.mission = mission
+
+
 # тестовые возможности
 
 test_mission = MissionObject("test", "idk", 100, [KillObjective("test obj", "guardian", 10),
                                                   KillObjective("test obj 2", "guardians", 110)])
 
-print(test_mission.current_objective())
+print(test_mission.current_objective)
 
-test_mission.current_objective().complete()
+test_mission.current_objective.complete()
 
-print(test_mission.current_objective())
+print(test_mission.current_objective)
+
+test_mission.current_objective.complete()
+
+print(test_mission.current_objective)
