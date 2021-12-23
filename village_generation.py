@@ -12,16 +12,6 @@ MAX_ROAD = MIN_ROAD * 2
 MASK = N // 5
 RANGE_SQUARE = N // 2.5
 
-COLOR_HOUSE = (116, 73, 42)
-COLOR_ROAD = (164, 138, 106)
-COLOR_GRASS = (75, 126, 58)
-COLOR_TOWN = (0, 156, 108)
-
-pygame.init()
-size = width, height = N * CELL_SIZE, N * CELL_SIZE
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption('Деревня')
-
 
 def load_image(name, color_key=None):
     fullname = os.path.join('images/', name)
@@ -289,16 +279,3 @@ class Village:
     def render(self, screen):
         # Отрисовка, визуализация матрицы
         self.all_sprites.draw(screen)
-
-# Создание поля
-village = Village(N, N)
-# Основной цикл
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    screen.fill((0, 0, 0))
-    village.render(screen)
-    pygame.display.flip()
