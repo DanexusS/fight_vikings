@@ -5,7 +5,8 @@ import os
 
 # Константы
 N = random.randrange(20, 30, 2)
-CELL_SIZE = 30
+EMPTY_N = N // 2
+CELL_SIZE = 20
 
 MIN_ROAD = N // 10
 MAX_ROAD = MIN_ROAD * 2
@@ -98,9 +99,9 @@ class Village:
         # Переменные поля и клеток
         self.width = width
         self.height = height
-        self.left = 0
-        self.top = 0
         self.cell_size = CELL_SIZE
+        self.left = EMPTY_N * CELL_SIZE
+        self.top = EMPTY_N * CELL_SIZE
 
         self.all_sprites = pygame.sprite.Group()
         self.houses_sprites = pygame.sprite.Group()
@@ -108,6 +109,12 @@ class Village:
 
         self.houses = []
         self.townhalls = []
+        # Пустые клетки вокруг деревни
+        for i in range(self.height + EMPTY_N * 2):
+            for j in range(self.width + EMPTY_N * 2):
+                x = j * self.cell_size
+                y = i * self.cell_size
+                Grass(self, (x, y))
         # Матрица
         self.board = []
         for i in range(self.height):
@@ -119,7 +126,7 @@ class Village:
         # Генерация
         self.generation()
 
-    def set_view(self, left, top, cell_size):
+    def set_view(self, left, top, cell_size=CELL_SIZE):
         # Установка новых значений
         self.left = left
         self.top = top
@@ -131,8 +138,8 @@ class Village:
             for j in range(self.width):
                 x1 = self.left + j * self.cell_size
                 y1 = self.top + i * self.cell_size
-                if (x_or_y == 'y' and y1 == int(y) and int(x) < x1 < self.width * self.cell_size - int(x)) or \
-                        (x_or_y == 'x' and x1 == int(x) and int(y) < y1 < self.height * self.cell_size - int(y)):
+                if (x_or_y == 'y' and y1 == int(y) and int(x) < x1 < self.left + self.width * self.cell_size - (int(x) - self.left)) or \
+                        (x_or_y == 'x' and x1 == int(x) and int(y) < y1 < self.top + self.height * self.cell_size - (int(y) - self.top)):
                     self.board[i][f"{x1} {y1}"] = Road(self, (x1, y1))
 
     def generation(self):
@@ -177,7 +184,7 @@ class Village:
                         # Входит ли в диапозон
                         if (2 < i < self.height - 2) and (2 < j < self.width - 2):
                             # Координаты
-                            x0, x1, x2 = self.top + (j - 1) * self.cell_size, self.top + j * self.cell_size, self.top + (j + 1) * self.cell_size
+                            x0, x1, x2 = self.left + (j - 1) * self.cell_size, self.left + j * self.cell_size, self.left + (j + 1) * self.cell_size
                             y0, y1, y2 = self.top + (i - 1) * self.cell_size, self.top + i * self.cell_size, self.top + (i + 1) * self.cell_size
                             # Пустые координаты
                             coords_empty = [(i - 1, f"{x0} {y0}", j), (i - 1, f"{x1} {y0}", j), (i - 1, f"{x2} {y0}", j),
