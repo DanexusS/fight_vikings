@@ -10,6 +10,7 @@ class InventorySlot:
         self.amount = amount
         self.allowed_types = allowed_types
         self.parent = None
+        self.mouse_hovered = False
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
         self.item = item
@@ -25,19 +26,22 @@ class InventorySlot:
 
 
 class Inventory:
-    def __init__(self, size: int):
-        self.slots = []
-        for slot in range(size):
-            self.slots.append(InventorySlot(AbstractItem(), 0))
+    def __init__(self, size: int, num_of_rows: int):
+        height = size // num_of_rows
+        width = size // height
+
+        self.slots = [[InventorySlot(AbstractItem(), 0) for __ in range(width)]
+                      for _ in range(height)]
 
     def clear(self):
         self.slots = []
 
     def empty_slot_count(self) -> int:
         counter = 0
-        for slot in self.slots:
-            if slot.item.ID == -1:
-                counter += 1
+        for row in self.slots:
+            for slot in row:
+                if slot.item.ID == -1:
+                    counter += 1
         return counter
 
     def add_item(self, item: AbstractItem, amount: int) -> bool:
@@ -54,22 +58,25 @@ class Inventory:
         return True
 
     def find_item_in_inv(self, item: AbstractItem):
-        for slot in self.slots:
-            if slot.item.ID == item.ID:
-                return slot
+        for row in self.slots:
+            for slot in row:
+                if slot.item.ID == item.ID:
+                    return slot
         return None
 
     def set_empty_slot(self, item: AbstractItem, amount: int):
-        for slot in self.slots:
-            if slot.item.ID == -1:
-                slot.update_slot(item, amount)
-                return slot
+        for row in self.slots:
+            for slot in row:
+                if slot.item.ID == -1:
+                    slot.update_slot(item, amount)
+                    return slot
         return None
 
     def remove_item(self, item: AbstractItem):
-        for slot in self.slots:
-            if slot.item == item:
-                slot.update_slot()
+        for row in self.slots:
+            for slot in row:
+                if slot.item == item:
+                    slot.update_slot()
 
     @staticmethod
     def swap_item(slot1: InventorySlot, slot2: InventorySlot):
