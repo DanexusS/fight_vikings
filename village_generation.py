@@ -286,6 +286,7 @@ class Village:
                     for j in range(-2, 3):
                         # Заменяем на траву если тут стоит дом
                         if self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].__class__.__name__ == 'House':
+                            self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].kill()
                             self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = Grass(self, (x + CELL_SIZE * j, y + CELL_SIZE * i))
                 # Если всё сработало - выходим из цикла
                 break
