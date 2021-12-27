@@ -2,6 +2,7 @@ import pygame
 import sys
 
 import village_generation
+import player_and_camera
 
 # Создание окна pygame
 pygame.init()
@@ -43,6 +44,8 @@ class MainGame:
         screen.fill(BG)
 
         village = village_generation.Village(village_generation.N, village_generation.N)
+        player = player_and_camera.Hero(village, village_generation.N * 2)
+        camera = player_and_camera.Camera()
 
         running_menu = True
         while running_menu:
@@ -53,6 +56,14 @@ class MainGame:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
                         self.menu()
+                player.update(event)
+
+            for direction in player.directions.items():
+                player.move_player(direction, village)
+
+            camera.update(player, width, height)
+            for sprite in village.all_sprites:
+                camera.apply(sprite)
 
             village.render(screen)
             pygame.display.flip()
