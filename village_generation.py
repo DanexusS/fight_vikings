@@ -2,11 +2,10 @@ import pygame
 import random
 import os
 
-
 # Константы
 N = random.randrange(20, 30, 2)
 EMPTY_N = N // 2
-CELL_SIZE = 20
+CELL_SIZE = 100
 
 MIN_ROAD = N // 10
 MAX_ROAD = MIN_ROAD * 2
@@ -73,6 +72,16 @@ class TownHall(pygame.sprite.Sprite):
         return None
 
 
+class Road(pygame.sprite.Sprite):
+    def __init__(self, other, pos):
+        super().__init__(other.all_sprites)
+        # Переменные
+        self.image = pygame.transform.scale(load_image('road.png'), (CELL_SIZE, CELL_SIZE))
+        self.rect = self.image.get_rect()
+        self.rect.x = int(pos[0])
+        self.rect.y = int(pos[1])
+
+
 class Grass(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.all_sprites)
@@ -83,11 +92,11 @@ class Grass(pygame.sprite.Sprite):
         self.rect.y = int(pos[1])
 
 
-class Road(pygame.sprite.Sprite):
+class Tree(pygame.sprite.Sprite):
     def __init__(self, other, pos):
-        super().__init__(other.all_sprites)
+        super().__init__(other.trees_sprites, other.all_sprites)
         # Переменные
-        self.image = pygame.transform.scale(load_image('road.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = pygame.transform.scale(load_image('tree.png'), (CELL_SIZE, CELL_SIZE))
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
@@ -106,12 +115,14 @@ class Village:
         self.all_sprites = pygame.sprite.Group()
         self.houses_sprites = pygame.sprite.Group()
         self.townhall_sprites = pygame.sprite.Group()
+        self.trees_sprites = pygame.sprite.Group()
+        self.player_sprites = pygame.sprite.Group()
 
         self.houses = []
         self.townhalls = []
         # Пустые клетки вокруг деревни
-        for i in range(self.height + EMPTY_N * 2):
-            for j in range(self.width + EMPTY_N * 2):
+        for i in range(-N, self.height + N * 2):
+            for j in range(-N, self.width + N * 2):
                 x = j * self.cell_size
                 y = i * self.cell_size
                 Grass(self, (x, y))
