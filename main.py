@@ -1,5 +1,6 @@
 import pygame
 import sys
+import threading
 
 import village_generation
 import player_and_camera
@@ -16,6 +17,7 @@ BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 SIZE_BTN_MENU = (300, 80)
 FONT_BTN = pygame.font.SysFont('Corbel', 50)
+FONT_LOAD = pygame.font.SysFont('Impact', 60)
 
 # Позиции кнопок в меню
 pos_exit = (width // 2 - SIZE_BTN_MENU[0] // 2, height // 2 + 300 - SIZE_BTN_MENU[1] // 2)
@@ -26,7 +28,7 @@ screen.fill(BG)
 
 # Игра
 class MainGame:
-    def draw_btn_menu(self):
+    def draw_menu(self):
         # Кнопка выход
         pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
@@ -40,9 +42,17 @@ class MainGame:
         # Обновить
         pygame.display.flip()
 
+    def draw_load(self):
+        screen.fill(BG)
+        screen.blit(FONT_LOAD.render('Загрузка...', True, BG_BTN), (width // 2 - 120, height // 2))
+        pygame.display.flip()
+
     def game(self):
         screen.fill(BG)
 
+        pygame.mouse.set_visible(False)
+
+        # Создание объектов
         village = village_generation.Village(village_generation.N, village_generation.N)
         player = player_and_camera.Hero(village, village_generation.N * 2)
         camera = player_and_camera.Camera()
@@ -69,7 +79,10 @@ class MainGame:
             pygame.display.flip()
 
     def menu(self):
-        self.draw_btn_menu()
+        pygame.mouse.set_visible(True)
+
+        # Создание объектов
+        threading.Thread(target=self.draw_menu).start()
 
         running_menu = True
         while running_menu:
@@ -84,6 +97,9 @@ class MainGame:
                         sys.exit()
                     if mouse_x >= pos_play[0] and mouse_y >= pos_play[1] and \
                             (mouse_x <= pos_play[0] + SIZE_BTN_MENU[0] and mouse_y <= pos_play[1] + SIZE_BTN_MENU[1]):
+                        t = threading.Thread(target=self.draw_load())
+                        t.daemon = True
+                        t.start()
                         self.game()
             pygame.display.flip()
 
