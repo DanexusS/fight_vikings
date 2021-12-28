@@ -66,7 +66,8 @@ class MainGame:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
                         self.menu()
-                player.update(event)
+
+                player.update(event, screen)
 
             for direction in player.directions.items():
                 player.move_player(direction, village)
