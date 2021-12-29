@@ -4,6 +4,7 @@ import threading
 
 import village_generation
 import player_and_camera
+from constants import *
 
 # Создание окна pygame
 pygame.init()
@@ -11,10 +12,7 @@ size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 pygame.display.set_caption('Fight Vikings')
 
-# Константы
-BG = '#43485E'
-BG_BTN = '#C8D1F7'
-BG_BTN_SHADOW = '#242429'
+# Нужные константы для игры
 SIZE_BTN_MENU = (300, 80)
 FONT_BTN = pygame.font.SysFont('Corbel', 50)
 FONT_LOAD = pygame.font.SysFont('Impact', 60)
@@ -26,9 +24,11 @@ pos_play = (width // 2 - SIZE_BTN_MENU[0] // 2, height // 2 + 200 - SIZE_BTN_MEN
 # Фон
 screen.fill(BG)
 
+
 # Игра
 class MainGame:
-    def draw_menu(self):
+    @staticmethod
+    def draw_menu():
         # Кнопка выход
         pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
@@ -42,7 +42,8 @@ class MainGame:
         # Обновить
         pygame.display.flip()
 
-    def draw_load(self):
+    @staticmethod
+    def draw_load():
         screen.fill(BG)
         screen.blit(FONT_LOAD.render('Загрузка...', True, BG_BTN), (width // 2 - 120, height // 2))
         pygame.display.flip()
@@ -102,6 +103,7 @@ class MainGame:
                         t.start()
                         self.game()
             pygame.display.flip()
+
 
 # Запуск игры
 if __name__ == '__main__':
