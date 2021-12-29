@@ -9,6 +9,7 @@ class InventorySlot:
         self.item = item
         self.amount = amount
         self.allowed_types = allowed_types
+        self.ui_display = None
         self.parent = None
         self.mouse_hovered = False
 

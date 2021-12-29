@@ -42,8 +42,8 @@ class Interface:
         return 0 <= cell.x <= self.width and 0 <= cell.y <= self.height
 
     def get_cell(self, mouse_pos) -> Vector2:
-        x = int((mouse_pos[0] - self.offset.x) // CELL_SIZE)
-        y = int((mouse_pos[1] - self.offset.y) // CELL_SIZE)
+        x = int((mouse_pos[0] - self.offset.x) // (CELL_SIZE + self.space.x))
+        y = int((mouse_pos[1] - self.offset.y) // (CELL_SIZE + self.space.y))
 
         return Vector2(x, y)
 
@@ -69,7 +69,11 @@ class Interface:
 
         if self.covers_slots(cell):
             slot = self.inventory.slots[cell.y - 1][cell.x - 1]
-            slot.mouse_hovered = self.mouse_data.hovered_slot == slot
+            slot.mouse_hovered = True
+
+            mouse_slot = self.mouse_data.hovered_slot
+            if mouse_slot is not None:
+                self.mouse_data.hovered_slot.mouse_hovered = mouse_slot == slot
 
             self.mouse_data.hovered_slot = slot
 
