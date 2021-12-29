@@ -1,16 +1,18 @@
 import random
 
 # Общие
+WIDTH = 1920
+HEIGHT = 1080
 BG = '#43485E'
 BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 # Игрок
-PLAYER_SIZE = 30
-STEP = 3
+PLAYER_SIZE = 40
+STEP = 4
 # Генерация
 N = random.randrange(20, 30, 2)
 EMPTY_N = N // 2
-CELL_SIZE = 100
+CELL_SIZE = 120
 MIN_ROAD = N // 10
 MAX_ROAD = MIN_ROAD * 2
 MASK = N // 5
