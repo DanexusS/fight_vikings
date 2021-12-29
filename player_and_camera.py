@@ -19,7 +19,7 @@ class Hero(pygame.sprite.Sprite):
         self.hp = 10
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
-        self.sword = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE + 10, PLAYER_SIZE + 10)), 180)
+        self.sword = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE, PLAYER_SIZE)), 180)
         self.angle_sword = 0
         self.angle_move = 0
         self.rect = self.image.get_rect()
@@ -49,15 +49,15 @@ class Hero(pygame.sprite.Sprite):
 
     def attack(self, screen, other):
         if 360 > self.angle_sword > 0:
-            r = 38
+            r = 45
             sword_img = pygame.transform.rotate(self.sword, self.angle_sword)
-            screen.blit(sword_img, (935 + r * math.sin(self.angle_move), 510 + r * math.cos(self.angle_move)))
+            screen.blit(sword_img, (WIDTH // 2 + r * math.sin(self.angle_move), HEIGHT // 2 + r * math.cos(self.angle_move)))
             if pygame.sprite.spritecollideany(self, other.houses_sprites):
                 # Сделать удар по домам
                 pass
             pygame.display.flip()
-            self.angle_sword += 11
-            self.angle_move += 0.20
+            self.angle_sword += 15
+            self.angle_move += 0.26
         if self.angle_sword >= 360 or self.angle_sword <= 0:
             self.angle_sword = 0
             self.angle_move = 0
@@ -105,5 +105,5 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target, width, height):
-        self.dx = -(target.rect.x - width // 2)
-        self.dy = -(target.rect.y - height // 2)
+        self.dx = -(target.rect.x - width // 2) + 5
+        self.dy = -(target.rect.y - height // 2) + 5
