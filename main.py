@@ -14,7 +14,7 @@ pygame.display.set_caption('Fight Vikings')
 
 # Нужные константы для игры
 SIZE_BTN_MENU = (300, 80)
-FONT_BTN = pygame.font.SysFont('Corbel', 50)
+FONT_BTN = pygame.font.SysFont('Arial', 50)
 FONT_LOAD = pygame.font.SysFont('Impact', 60)
 
 # Позиции кнопок в меню
@@ -32,12 +32,12 @@ class MainGame:
         # Кнопка выход
         pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
-        screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 80, pos_exit[1] + 18))
+        screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
         # Кнопка начать игру
         pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_play[0] - 4, pos_play[1] + 4, SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
         pygame.draw.rect(screen, BG_BTN, (pos_play[0], pos_play[1], SIZE_BTN_MENU[0], SIZE_BTN_MENU[1]))
-        screen.blit(FONT_BTN.render('Играть', True, (0, 0, 0)), (pos_play[0] + 80, pos_play[1] + 18))
+        screen.blit(FONT_BTN.render('Играть', True, (0, 0, 0)), (pos_play[0] + 85, pos_play[1] + 10))
 
         # Обновить
         pygame.display.flip()
@@ -68,11 +68,16 @@ class MainGame:
                         screen.fill(BG)
                         self.menu()
 
-                player.update(event, screen)
+                player.update(event)
 
+            # Ходьба героя
             for direction in player.directions.items():
                 player.move_player(direction, village)
 
+            # Атака героя
+            player.attack(screen, village)
+
+            # Обновление камеры
             camera.update(player, width, height)
             for sprite in village.all_sprites:
                 camera.apply(sprite)
