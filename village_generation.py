@@ -4,7 +4,7 @@ import os
 from constants import *
 
 
-def load_image(name, color_key=None):
+def load_image(name):
     fullname = os.path.join('images/', name)
     image = pygame.image.load(fullname).convert_alpha()
     return image
