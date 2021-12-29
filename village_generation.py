@@ -1,16 +1,7 @@
 import pygame
-import random
 import os
 
-# Константы
-N = random.randrange(20, 30, 2)
-EMPTY_N = N // 2
-CELL_SIZE = 100
-
-MIN_ROAD = N // 10
-MAX_ROAD = MIN_ROAD * 2
-MASK = N // 5
-RANGE_SQUARE = N // 2.5
+from constants import *
 
 
 def load_image(name, color_key=None):
