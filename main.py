@@ -8,7 +8,7 @@ from constants import *
 
 # Создание окна pygame
 pygame.init()
-size = width, height = 1920, 1080
+size = width, height = WIDTH, HEIGHT
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 pygame.display.set_caption('Fight Vikings')
 
