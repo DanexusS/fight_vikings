@@ -5,8 +5,8 @@ BG = '#43485E'
 BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 # Игрок
-PLAYER_SIZE = 40
-STEP = 4
+PLAYER_SIZE = 30
+STEP = 3
 # Генерация
 N = random.randrange(20, 30, 2)
 EMPTY_N = N // 2
