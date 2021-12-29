@@ -1,12 +1,8 @@
 import pygame
-import random
-import threading
-import time
+import math
 import os
 
-# Константы
-CELL_SIZE = 40
-STEP = 4
+from constants import *
 
 
 def load_image(name):
@@ -18,12 +14,14 @@ def load_image(name):
 class Hero(pygame.sprite.Sprite):
     def __init__(self, other, n):
         super().__init__(other.player_sprites, other.all_sprites)
-        pos = random.choice([(n // 6, n // 2), (n // 6 * 5, n // 2), (n // 2, n // 6), (n // 2, n // 6 * 5)])
+        pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
         # Переменные
         self.hp = 10
         self.status = 'normal'
-        self.image = pygame.transform.scale(load_image('hero.png'), (CELL_SIZE, CELL_SIZE))
-        self.sword = pygame.transform.scale(load_image('sword.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
+        self.sword = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE + 10, PLAYER_SIZE + 10)), 180)
+        self.angle_sword = 0
+        self.angle_move = 0
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0]) * CELL_SIZE
         self.rect.y = int(pos[1]) * CELL_SIZE
@@ -48,25 +46,28 @@ class Hero(pygame.sprite.Sprite):
                     (pygame.sprite.spritecollideany(self, other.houses_sprites) or
                      pygame.sprite.spritecollideany(self, other.townhall_sprites)):
                 self.rect = self.rect.move(-x, -y)
-    '''
-    def attack(self, screen):
-        surf = pygame.Surface((100, 100))
-        # for i in range(1, 361):
-        screen.blit(surf, (self.rect.x - 30, self.rect.y - 30))
-        img = pygame.transform.rotate(self.sword, 0)
-        surf.blit(img, self.rect)
 
-        pygame.display.flip()
-        pygame.time.delay(1)
-    '''
-    def update(self, event, screen):
-        '''
-        if event.type == pygame.MOUSEBUTTONUP:
+    def attack(self, screen, other):
+        if 360 > self.angle_sword > 0:
+            r = 38
+            sword_img = pygame.transform.rotate(self.sword, self.angle_sword)
+            screen.blit(sword_img, (935 + r * math.sin(self.angle_move), 510 + r * math.cos(self.angle_move)))
+            if pygame.sprite.spritecollideany(self, other.houses_sprites):
+                # Сделать удар по домам
+                pass
+            pygame.display.flip()
+            self.angle_sword += 11
+            self.angle_move += 0.20
+        if self.angle_sword >= 360 or self.angle_sword <= 0:
+            self.angle_sword = 0
+            self.angle_move = 0
+
+    def update(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                t = threading.Thread(target=self.attack(screen))
-                t.daemon = True
-                t.start()
-        '''
+                if self.angle_sword == 0:
+                    self.angle_sword = 5
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
                 self.run = 2
@@ -104,5 +105,5 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target, width, height):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        self.dx = -(target.rect.x - width // 2)
+        self.dy = -(target.rect.y - height // 2)
