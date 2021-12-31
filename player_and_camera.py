@@ -11,6 +11,17 @@ def load_image(name):
     return image
 
 
+class Sword(pygame.sprite.Sprite):
+    def __init__(self, other):
+        super().__init__(other.sword_sprites, other.all_sprites)
+        self.image = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE, PLAYER_SIZE)), 180)
+        self.rect = self.image.get_rect()
+
+    def attack(self, group):
+        if pygame.sprite.spritecollideany(self, group):
+            pygame.sprite.spritecollideany(self, group).damage(1)
+
+
 class Hero(pygame.sprite.Sprite):
     def __init__(self, other, n):
         super().__init__(other.player_sprites, other.all_sprites)
@@ -19,7 +30,6 @@ class Hero(pygame.sprite.Sprite):
         self.hp = 10
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
-        self.sword = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE, PLAYER_SIZE)), 180)
         self.angle_attack_range = 0
         self.attack_default = 0
         self.angle_move = 0
@@ -49,6 +59,7 @@ class Hero(pygame.sprite.Sprite):
                 self.rect = self.rect.move(-x, -y)
 
     def attack(self, screen, other, pos):
+        self.sword = Sword(other)
         # Обычная атака
         if bool(self.attack_default):
             # Переменные
@@ -71,25 +82,32 @@ class Hero(pygame.sprite.Sprite):
             elif pos[0] >= WIDTH // 2 and pos[1] >= HEIGHT // 2:
                 angle = 90 - angle - 90
                 angle_move = 0.26 * abs(angle // 15)
-            print(angle)
             # Отрисовка
-            sword_img = pygame.transform.rotate(self.sword, angle)
-            screen.blit(sword_img, (x + r * math.sin(angle_move), y + r * math.cos(angle_move)))
-            pygame.display.flip()
+            self.sword.image = pygame.transform.rotate(self.sword.image, angle)
+            self.sword.rect = self.sword.image.get_rect()
+            self.sword.rect.x = x + r * math.sin(angle_move)
+            self.sword.rect.y = y + r * math.cos(angle_move)
+            other.sword_sprites.draw(screen)
             self.attack_default -= 1
+            # Проверка на атаку \/ 1 раз
+            if self.attack_default == 10:
+                self.sword.attack(other.houses_sprites)
+                self.sword.attack(other.townhall_sprites)
         # Круговая атака
         elif bool(self.angle_attack_range):
             # Переменные
             r = 45
             # Отрисовка
-            sword_img = pygame.transform.rotate(self.sword, self.angle_attack_range)
-            screen.blit(sword_img, (WIDTH // 2 + r * math.sin(self.angle_move), HEIGHT // 2 + r * math.cos(self.angle_move)))
-            if pygame.sprite.spritecollideany(self, other.houses_sprites):
-                # Сделать удар по домам
-                pass
-            pygame.display.flip()
+            self.sword.image = pygame.transform.rotate(self.sword.image, self.angle_attack_range)
+            self.sword.rect = self.sword.image.get_rect()
+            self.sword.rect.x = WIDTH // 2 + r * math.sin(self.angle_move)
+            self.sword.rect.y = HEIGHT // 2 + r * math.cos(self.angle_move)
+            other.sword_sprites.draw(screen)
             self.angle_attack_range -= 15
             self.angle_move -= 0.26
+            # Проверка на атаку
+            self.sword.attack(other.houses_sprites)
+            self.sword.attack(other.townhall_sprites)
 
     def update(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
