@@ -97,6 +97,7 @@ class Village:
         self.townhall_sprites = pygame.sprite.Group()
         self.trees_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
+        self.sword_sprites = pygame.sprite.Group()
 
         self.houses = []
         self.townhalls = []
