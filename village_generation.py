@@ -26,7 +26,7 @@ class House(pygame.sprite.Sprite):
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
-                self.hp = 0
+                self.image = pygame.transform.scale(load_image('housedie.png'), (CELL_SIZE, CELL_SIZE))
             return self.status
         return None
 
@@ -47,7 +47,7 @@ class TownHall(pygame.sprite.Sprite):
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
-                self.hp = 0
+                self.image = pygame.transform.scale(load_image('housedie.png'), (CELL_SIZE, CELL_SIZE))
             return self.status
         return None
 
