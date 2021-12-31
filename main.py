@@ -56,15 +56,11 @@ class MainGame:
         player = player_and_camera.Hero(village, village_generation.N * 2)
         camera = player_and_camera.Camera()
 
-        pos = (0, 0)
-
         running_menu = True
         while running_menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running_menu = False
-                if event.type == pygame.MOUSEMOTION:
-                    pos = event.pos
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
@@ -77,7 +73,7 @@ class MainGame:
                 player.move_player(direction, village)
 
             # Атака героя
-            player.attack(screen, village, pos)
+            player.attack(village)
 
             # Обновление камеры
             camera.update(player, width, height)
