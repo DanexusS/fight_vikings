@@ -20,9 +20,11 @@ class House(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
+        self.is_dmg = False
 
     def damage(self, dmg):
         if self.hp > 0:
+            self.is_dmg = True
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
@@ -41,9 +43,11 @@ class TownHall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
+        self.is_dmg = False
 
     def damage(self, dmg):
         if self.hp > 0:
+            self.is_dmg = True
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
