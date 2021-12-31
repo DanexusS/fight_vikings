@@ -14,7 +14,7 @@ class House(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.houses_sprites, other.all_sprites)
         # Переменные
-        self.hp = 10
+        self.hp = 100
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('house.png'), (CELL_SIZE, CELL_SIZE))
         self.rect = self.image.get_rect()
@@ -35,7 +35,7 @@ class TownHall(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.townhall_sprites, other.all_sprites)
         # Переменные
-        self.hp = 100
+        self.hp = 400
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('townhall.png'), (CELL_SIZE, CELL_SIZE))
         self.rect = self.image.get_rect()
@@ -279,3 +279,4 @@ class Village:
     def render(self, screen):
         # Отрисовка, визуализация матрицы
         self.all_sprites.draw(screen)
+        self.sword_sprites.draw(screen)
