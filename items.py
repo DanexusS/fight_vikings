@@ -1,19 +1,17 @@
-from enum import Enum
-
-
-class Attributes(Enum):
+class Attributes:
     Move_Speed = 0
     Attack_Speed = 1
     Damage = 2
     # потом дополнить
 
 
-class ItemType(Enum):
+class ItemType:
     Null = -1
     Food = 0
     Equipment = 1
     Weapon = 2
     Potion = 3
+    Item = 4
 
 
 class ItemBuff:
@@ -28,6 +26,7 @@ class AbstractItem:
         self.TYPE = ItemType.Null
         self.title = title
         self.is_stackable = True
+        self.image = None
 
 
 class AbstractUsingItem(AbstractItem):
@@ -60,14 +59,3 @@ class FoodItem(AbstractUsingItem):
 
     def use_item(self):
         print("used item food")
-
-
-class PotionItem(AbstractUsingItem):
-    def __init__(self, title: str, use_key, buff: ItemBuff):
-        super().__init__(title, use_key)
-
-        self.TYPE = ItemType.Potion
-        self.buff = buff
-
-    def use_item(self):
-        print("used item potion")
