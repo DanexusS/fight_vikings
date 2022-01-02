@@ -1,13 +1,25 @@
 import pygame
+
 from inventory_obj import *
+from pygame import Vector2
+from item_database_editor import init
 
 
 pygame.init()
+item_db = init()
 
-BG_COLOR = "#43485E"
-SLOT_COLORS = {"Frame": "#C8D1F7", "BG": "#60667e", "Amount_Text": "#d0d1d6"}
+BG_COLOR = pygame.Color("#43485E")
+SLOT_COLORS = {
+    "Frame": pygame.Color("#C8D1F7"),
+    "BG": pygame.Color("#60667e"),
+    "Amount_Text": pygame.Color("#d0d1d6")
+}
 CELL_SIZE = 128
-AMOUNT_FONT = pygame.font.SysFont('Impact', CELL_SIZE // 5)
+AMOUNT_FONT = pygame.font.SysFont("Impact", round(CELL_SIZE // 4.5))
+
+
+size = w, h = 1920, 1080
+screen = pygame.display.set_mode(size)
 
 
 class MouseData:
@@ -17,7 +29,7 @@ class MouseData:
 
 
 class Interface:
-    def __init__(self, inventory: Inventory, space: pygame.Vector2, start_pos: pygame.Vector2):
+    def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2):
         self.inventory = inventory
         self.space = space
         self.offset = start_pos
@@ -26,34 +38,41 @@ class Interface:
         self.width = len(self.inventory.slots[0])
         self.mouse_data = MouseData()
 
-    def render_slots(self, scr):
+    def render_slots(self):
         for y in range(self.height):
             for x in range(self.width):
-                cell = pygame.Rect((CELL_SIZE + self.space.x) * x + self.offset.x,
-                                   (CELL_SIZE + self.space.y) * y + self.offset.y,
-                                   CELL_SIZE, CELL_SIZE)
+                cell_position = ((CELL_SIZE + self.space.x) * x + self.offset.x,
+                                 (CELL_SIZE + self.space.y) * y + self.offset.y)
+                cell = pygame.Rect(cell_position[0], cell_position[1], CELL_SIZE, CELL_SIZE)
                 slot = self.inventory.slots[y - 1][x - 1]
-                item_amount = slot.amount
-                amount_text = AMOUNT_FONT.render(str(item_amount) if item_amount != 0 else "", False,
-                                                 pygame.Color(SLOT_COLORS["Amount_Text"]))
-                text_position = ((CELL_SIZE + self.space.x) * x + self.offset.x + CELL_SIZE // 1.35,
-                                 (CELL_SIZE + self.space.y) * y + self.offset.y + CELL_SIZE // 1.35)
 
                 if slot.mouse_hovered:
-                    pygame.draw.rect(scr, pygame.Color(SLOT_COLORS["BG"]), cell, 0)
-                pygame.draw.rect(scr, pygame.Color(SLOT_COLORS["Frame"]), cell, 1)
+                    pygame.draw.rect(screen, SLOT_COLORS["BG"], cell, 0)
+                pygame.draw.rect(screen, SLOT_COLORS["Frame"], cell, 1)
 
-                screen.blit(amount_text, text_position)
+                if slot.ui_display is not None:
+                    slot_image = pygame.transform.scale(pygame.image.load(slot.ui_display).convert_alpha(),
+                                                        (96, 96))
+                    rect = slot_image.get_rect(center=(cell_position[0] + CELL_SIZE // 2,
+                                                       cell_position[1] + CELL_SIZE // 2))
+                    screen.blit(slot_image, rect)
 
-    def covers_slots(self, cell: pygame.Vector2):
+                screen.blit(
+                    AMOUNT_FONT.render(str(slot.amount) if slot.amount != 0 else "",
+                                       False,
+                                       SLOT_COLORS["Amount_Text"]),
+                    (cell_position[0] + CELL_SIZE // 1.5, cell_position[1] + CELL_SIZE // 1.5)
+                )
+
+    def covers_slots(self, cell: Vector2) -> bool:
         return 0 <= cell.x <= self.width and 0 <= cell.y <= self.height and \
                cell.x < self.width and cell.y < self.height
 
-    def get_cell(self, mouse_pos) -> pygame.Vector2:
+    def get_cell(self, mouse_pos) -> Vector2:
         x = (mouse_pos[0] - self.offset.x) // (CELL_SIZE + self.space.x)
         y = (mouse_pos[1] - self.offset.y) // (CELL_SIZE + self.space.y)
 
-        return pygame.Vector2(x, y)
+        return Vector2(x, y)
 
     def drop_item(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
@@ -92,10 +111,7 @@ class Interface:
         pass
 
 
-interface = Interface(Inventory(60, 10), pygame.Vector2(2.5, 2.5), pygame.Vector2(50, 62.5))
-
-size = w, h = 1920, 1080
-screen = pygame.display.set_mode(size)
+interface = Interface(Inventory(60, 10), Vector2(5, 5), Vector2(50, 62.5))
 
 running = True
 while running:
@@ -110,6 +126,6 @@ while running:
         elif event.type == pygame.MOUSEBUTTONUP:
             interface.drop_item(event.pos)
 
-    screen.fill(pygame.Color(BG_COLOR))
-    interface.render_slots(screen)
+    screen.fill(BG_COLOR)
+    interface.render_slots()
     pygame.display.flip()
