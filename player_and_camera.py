@@ -88,7 +88,7 @@ class Hero(pygame.sprite.Sprite):
         if bool(self.attack_default):
             # Переменные
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            dmg = 10
+            dmg = 8
             r = 45
             x = WIDTH // 2
             y = HEIGHT // 2
