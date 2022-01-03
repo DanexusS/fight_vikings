@@ -74,9 +74,18 @@ class Hero(pygame.sprite.Sprite):
             y = direction[0][1] * self.run
             self.rect = self.rect.move(x, y)
             # Если герой врезался во что то, то возвращаем назад
-            if pygame.sprite.spritecollideany(self, other.trees_sprites) or \
-                    (pygame.sprite.spritecollideany(self, other.houses_sprites) or
-                     pygame.sprite.spritecollideany(self, other.townhall_sprites)):
+            collide = False
+            if pygame.sprite.spritecollideany(self, other.trees_sprites):
+                collide = True
+            for sprite in other.houses_sprites:
+                if pygame.sprite.collide_mask(self, sprite):
+                    collide = True
+                    break
+            for sprite in other.townhall_sprites:
+                if pygame.sprite.collide_mask(self, sprite):
+                    collide = True
+                    break
+            if collide:
                 self.rect = self.rect.move(-x, -y)
 
     def attack(self, other):
