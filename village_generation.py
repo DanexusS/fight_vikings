@@ -10,48 +10,73 @@ def load_image(name):
     return image
 
 
+def size_img(name, num=1):
+    return pygame.transform.scale(load_image(name), (CELL_SIZE * num, CELL_SIZE * num))
+
+
 class House(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.houses_sprites, other.all_sprites)
         # Переменные
         self.hp = 100
         self.status = 'normal'
-        self.image = pygame.transform.scale(load_image('house.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = size_img('house.png')
+        self.mask = pygame.mask.from_surface(size_img('mask_house.png'))
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
         self.is_dmg = False
 
     def damage(self, dmg):
-        if self.hp > 0:
+        if self.status == 'normal':
             self.is_dmg = True
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
-                self.image = pygame.transform.scale(load_image('housedie.png'), (CELL_SIZE, CELL_SIZE))
+                self.image = size_img('housedie.png')
             return self.status
         return None
 
 
 class TownHall(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
+    def __init__(self, other, pos, angle):
         super().__init__(other.townhall_sprites, other.all_sprites)
         # Переменные
-        self.hp = 400
+        self.hp = 600
         self.status = 'normal'
-        self.image = pygame.transform.scale(load_image('townhall.png'), (CELL_SIZE, CELL_SIZE))
+        self.angle = angle
+        # Доработать (Дорисовать картинки)
+        if self.angle == 0:
+            self.image = size_img('townhall.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+        elif self.angle == 1:
+            self.image = size_img('townhall.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+        elif self.angle == 2:
+            self.image = size_img('townhall.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+        elif self.angle == 3:
+            self.image = size_img('townhall.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
         self.is_dmg = False
 
     def damage(self, dmg):
-        if self.hp > 0:
+        if self.status == 'normal':
             self.is_dmg = True
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
-                self.image = pygame.transform.scale(load_image('housedie.png'), (CELL_SIZE, CELL_SIZE))
+                if self.angle == 0:
+                    self.image = size_img('townhall.png', 3)
+                elif self.angle == 1:
+                    self.image = size_img('townhall.png', 3)
+                elif self.angle == 2:
+                    self.image = size_img('townhall.png', 3)
+                elif self.angle == 3:
+                    self.image = size_img('townhall.png', 3)
             return self.status
         return None
 
@@ -60,7 +85,7 @@ class Road(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.all_sprites)
         # Переменные
-        self.image = pygame.transform.scale(load_image('road.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = size_img('road.png')
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
@@ -70,7 +95,7 @@ class Grass(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.all_sprites)
         # Переменные
-        self.image = pygame.transform.scale(load_image('grass.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = size_img('grass.png')
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
@@ -80,7 +105,7 @@ class Tree(pygame.sprite.Sprite):
     def __init__(self, other, pos):
         super().__init__(other.trees_sprites, other.all_sprites)
         # Переменные
-        self.image = pygame.transform.scale(load_image('tree.png'), (CELL_SIZE, CELL_SIZE))
+        self.image = size_img('tree.png')
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
@@ -139,7 +164,7 @@ class Village:
                     self.board[i][f"{x1} {y1}"] = Road(self, (x1, y1))
 
     def generation(self):
-        # Пока не сгенерируеться без ошибки (шанс на ошибку примерно 1 к 50)
+        # Пока не сгенерируеться без ошибки (шанс на ошибку примерно 1 к 40)
         while True:
             try:
                 center = 4
@@ -201,29 +226,35 @@ class Village:
                     num = random.randrange(len(coords_for_gen))
                     test = coords_for_gen[num]
                     # Если координаты входят в диапозон, то берём их
-                    if (RANGE_SQUARE < test[center][0] < self.height - RANGE_SQUARE) and (RANGE_SQUARE < test[center][2] < self.width - RANGE_SQUARE):
+                    if (RANGE_SQUARE < test[center][0] < self.height - RANGE_SQUARE) and (
+                            RANGE_SQUARE < test[center][2] < self.width - RANGE_SQUARE):
                         coords_square = coords_for_gen.pop(num)
                 # Заполнение клеток дорогами
                 for coord in coords_square:
                     self.board[coord[0]][coord[1]] = Road(self, coord[1].split())
                 # Спавн домов -----------------------------------------
                 for coords in coords_for_gen:
-                    count_not_road = 0
-                    count_not_house = 0
                     for i, coord in enumerate(coords):
-                        # Вычисляем центр квадрата координат (куда будем ставить дом), и сколько дорог вокруг
-                        if i == 4:
-                            cell = coord
-                        else:
-                            if self.board[coord[0]][coord[1]].__class__.__name__ != 'Road':
-                                count_not_road += 1
-                            if self.board[coord[0]][coord[1]].__class__.__name__ != 'House':
-                                count_not_house += 1
-                    # Если вокруг нет дорог то идём дальше
-                    if count_not_road >= 8:
-                        # Если вокруг нет домов то ставим дом, иначе с шансом 33% будет дом
-                        if (count_not_house >= 8) or (count_not_house < 8 and random.randint(1, 3) == 1):
-                            self.board[cell[0]][cell[1]] = House(self, cell[1].split())
+                        # Переменные
+                        x, y = list(map(int, coord[1].split()))
+                        count_road = 0
+                        count_house = 0
+                        # Вычисляем всё кроме центра
+                        if i != 4:
+
+                            if self.board[coord[0]][coord[1]].__class__.__name__ == 'Grass':
+                                around_coords = [self.board[coord[0] - 1][f"{x - CELL_SIZE} {y - CELL_SIZE}"], self.board[coord[0]][f"{x - CELL_SIZE} {y}"],
+                                                 self.board[coord[0] - 1][f"{x} {y - CELL_SIZE}"], self.board[coord[0] + 1][f"{x - CELL_SIZE} {y + CELL_SIZE}"],
+                                                 self.board[coord[0] + 1][f"{x + CELL_SIZE} {y + CELL_SIZE}"], self.board[coord[0]][f"{x + CELL_SIZE} {y}"],
+                                                 self.board[coord[0] + 1][f"{x} {y + CELL_SIZE}"], self.board[coord[0] - 1][f"{x + CELL_SIZE} {y - CELL_SIZE}"]]
+                                for around_coord in around_coords:
+                                    if around_coord.__class__.__name__ == 'Road':
+                                        count_road += 1
+                                    if around_coord.__class__.__name__ == 'House':
+                                        count_house += 1
+                                # Если впритык к дороге, то проверяем сколько домо вокруг, если 0, то ставим, если больше, то с шансом 33% будет дом
+                                if count_road >= 2 and ((count_house == 0) or (random.randint(1, 3) == 1 and count_house >= 1)):
+                                    self.board[coord[0]][coord[1]] = House(self, (x, y))
                 # Спавн ратуши -----------------------------------------
                 # Выбор с какой стороны от площади будет ратуша
                 for _ in range(4):
@@ -239,6 +270,7 @@ class Village:
                               self.board[coords_square[center][0]][f"{coords_txt[0] + CELL_SIZE * (num // 3 * 4)} {coords_txt[1]}"].__class__.__name__ != 'Road'))):
                         break
                 # Заполнение клеток ратуши
+                spawn_town_hall = True
                 for coord in coords_square:
                     # Вычисление координат \/
                     coords_txt = list(map(int, coord[1].split()))
@@ -256,8 +288,18 @@ class Village:
                              (x_or_y == 'y' and num == 3 and coord[0] == coords_square[0][0]) or
                              (x_or_y == 'y' and num == -3 and coord[0] == coords_square[6][0])):
                         self.board[coord_i][f"{coord_x} {coord_y}"] = Road(self, (coord_x, coord_y))
-                    else:
-                        self.board[coord_i][f"{coord_x} {coord_y}"] = TownHall(self, (coord_x, coord_y))
+                    elif spawn_town_hall:
+                        # Запоминание данных, для того что бы добавить ратушу потом
+                        if x_or_y == 'x' and num == 3:
+                            angle = 0
+                        elif x_or_y == 'x' and num == -3:
+                            angle = 1
+                        elif x_or_y == 'y' and num == 3:
+                            angle = 2
+                        elif x_or_y == 'y' and num == -3:
+                            angle = 3
+                        data = [coord_i, coord_x, coord_y, angle]
+                        spawn_town_hall = False
                 # Удаление домов впритык к ратуше
                 x, y = list(map(int, coords_square[center][1].split()))
                 iy = coords_square[center][0]
@@ -273,14 +315,18 @@ class Village:
                         if self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].__class__.__name__ == 'House':
                             self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].kill()
                             self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = Grass(self, (x + CELL_SIZE * j, y + CELL_SIZE * i))
+                # Добавление ратуши, сейчас для того что бы перекрыть всё остальное
+                self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3])
                 # Если всё сработало - выходим из цикла
                 break
-            except Exception:
+            except Exception as exc:
                 # Если ошибка - попробовать ещё раз
                 print('Ошибка')
-                pass
+                print(exc)
 
     def render(self, screen):
         # Отрисовка, визуализация матрицы
         self.all_sprites.draw(screen)
         self.sword_sprites.draw(screen)
+        self.houses_sprites.draw(screen)
+        self.townhall_sprites.draw(screen)
