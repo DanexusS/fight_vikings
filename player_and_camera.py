@@ -110,7 +110,7 @@ class Hero(pygame.sprite.Sprite):
                 angle -= 190
                 angle_move = max_coeff - (min_coeff * abs(angle // step_angle))
             elif mouse_x >= WIDTH // 2 and mouse_y >= HEIGHT // 2:
-                angle = (90 - angle) - 70
+                angle = (90 - angle) - 80
                 angle_move = min_coeff * abs(angle // step_angle)
             # Отрисовка
             self.sword.image = pygame.transform.rotate(self.sword.image, angle)
