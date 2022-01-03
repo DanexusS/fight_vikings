@@ -12,7 +12,7 @@ STEP = 4
 # Генерация
 N = random.randrange(20, 30, 2)
 EMPTY_N = N // 2
-CELL_SIZE = 120
+CELL_SIZE = 180
 MIN_ROAD = N // 10
 MAX_ROAD = MIN_ROAD * 2
 MASK = N // 5
