@@ -42,25 +42,31 @@ class TownHall(pygame.sprite.Sprite):
     def __init__(self, other, pos, angle):
         super().__init__(other.townhall_sprites, other.all_sprites)
         # Переменные
+        x, y = pos
         self.hp = 600
         self.status = 'normal'
         self.angle = angle
-        # Доработать (Дорисовать картинки)
+        # Установка картинок
         if self.angle == 0:
-            self.image = size_img('townhall.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+            self.image = size_img('townhall3.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall3.png', 3))
+            y -= CELL_SIZE * 0.2
         elif self.angle == 1:
-            self.image = size_img('townhall.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+            self.image = size_img('townhall4.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall4.png', 3))
+            x -= CELL_SIZE
+            y -= CELL_SIZE * 0.2
         elif self.angle == 2:
-            self.image = size_img('townhall.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+            self.image = size_img('townhall2.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall2.png', 3))
+            y -= CELL_SIZE * 2
         elif self.angle == 3:
-            self.image = size_img('townhall.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall.png', 3))
+            self.image = size_img('townhall1.png', 3)
+            self.mask = pygame.mask.from_surface(size_img('mask_townhall1.png', 3))
+            y -= CELL_SIZE
         self.rect = self.image.get_rect()
-        self.rect.x = int(pos[0])
-        self.rect.y = int(pos[1])
+        self.rect.x = x
+        self.rect.y = y
         self.is_dmg = False
 
     def damage(self, dmg):
@@ -70,13 +76,13 @@ class TownHall(pygame.sprite.Sprite):
             if self.hp < 1:
                 self.status = 'destroed'
                 if self.angle == 0:
-                    self.image = size_img('townhall.png', 3)
+                    self.image = size_img('townhall1.png', 3)
                 elif self.angle == 1:
-                    self.image = size_img('townhall.png', 3)
+                    self.image = size_img('townhall1.png', 3)
                 elif self.angle == 2:
-                    self.image = size_img('townhall.png', 3)
+                    self.image = size_img('townhall1.png', 3)
                 elif self.angle == 3:
-                    self.image = size_img('townhall.png', 3)
+                    self.image = size_img('townhall1.png', 3)
             return self.status
         return None
 
@@ -241,7 +247,6 @@ class Village:
                         count_house = 0
                         # Вычисляем всё кроме центра
                         if i != 4:
-
                             if self.board[coord[0]][coord[1]].__class__.__name__ == 'Grass':
                                 around_coords = [self.board[coord[0] - 1][f"{x - CELL_SIZE} {y - CELL_SIZE}"], self.board[coord[0]][f"{x - CELL_SIZE} {y}"],
                                                  self.board[coord[0] - 1][f"{x} {y - CELL_SIZE}"], self.board[coord[0] + 1][f"{x - CELL_SIZE} {y + CELL_SIZE}"],
@@ -252,8 +257,8 @@ class Village:
                                         count_road += 1
                                     if around_coord.__class__.__name__ == 'House':
                                         count_house += 1
-                                # Если впритык к дороге, то проверяем сколько домо вокруг, если 0, то ставим, если больше, то с шансом 33% будет дом
-                                if count_road >= 2 and ((count_house == 0) or (random.randint(1, 3) == 1 and count_house >= 1)):
+                                # Если впритык к дороге, то проверяем сколько домо вокруг, если 0, то ставим, если больше, то с шансом 25% будет дом
+                                if count_road >= 2 and ((count_house == 0) or (random.randint(1, 4) == 1 and count_house >= 1)) and coord not in coords_square:
                                     self.board[coord[0]][coord[1]] = House(self, (x, y))
                 # Спавн ратуши -----------------------------------------
                 # Выбор с какой стороны от площади будет ратуша
@@ -287,6 +292,8 @@ class Village:
                             ((x_or_y == 'x' and num == -3 and coords_txt[0] == int(coords_square[2][1].split()[0])) or
                              (x_or_y == 'y' and num == 3 and coord[0] == coords_square[0][0]) or
                              (x_or_y == 'y' and num == -3 and coord[0] == coords_square[6][0])):
+                        if self.board[coord_i][f"{coord_x} {coord_y}"] in self.houses_sprites:
+                            self.houses_sprites.remove(self.board[coord_i][f"{coord_x} {coord_y}"])
                         self.board[coord_i][f"{coord_x} {coord_y}"] = Road(self, (coord_x, coord_y))
                     elif spawn_town_hall:
                         # Запоминание данных, для того что бы добавить ратушу потом
