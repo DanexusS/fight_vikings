@@ -107,7 +107,7 @@ class Hero(pygame.sprite.Sprite):
             # Формула
             sqrt1 = math.sqrt((mouse_x - x + 1) * (mouse_x - x + 1) + (mouse_y - y + 1) * (mouse_y - y + 1))
             sqrt2 = math.sqrt(0 * 0 + 10 * 10)
-            angle = round(-(90 - math.acos(math.cos(((mouse_x - x) * 0 + (mouse_y - y) * 10) / (sqrt1 * sqrt2))) * 100))
+            angle = round(-(90 - math.acos(math.cos(((mouse_x - x) * 0 + (mouse_y - y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
             # Выравнивание градуса угла
             if mouse_x <= WIDTH // 2 and mouse_y <= HEIGHT // 2:
                 angle = (270 - angle) - 80
