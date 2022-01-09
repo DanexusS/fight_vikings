@@ -1,14 +1,8 @@
 import pygame
 import math
-import os
 
 from constants import *
-
-
-def load_image(name):
-    fullname = os.path.join('images/', name)
-    image = pygame.image.load(fullname).convert_alpha()
-    return image
+from functions import *
 
 
 class Sword(pygame.sprite.Sprite):
@@ -58,7 +52,7 @@ class Hero(pygame.sprite.Sprite):
         self.run = 1
 
     def damage(self, dmg):
-        if self.hp > 0:
+        if self.status == 'normal':
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'

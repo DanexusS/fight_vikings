@@ -1,7 +1,7 @@
 import pygame
-import os
 
 from constants import *
+from functions import *
 
 
 def load_image(name):

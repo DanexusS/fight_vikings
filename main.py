@@ -24,7 +24,6 @@ pos_play = (width // 2 - SIZE_BTN_MENU[0] // 2, height // 2 + 200 - SIZE_BTN_MEN
 # Фон
 screen.fill(BG)
 
-
 # Игра
 class MainGame:
     @staticmethod
