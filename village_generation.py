@@ -1,17 +1,8 @@
 import pygame
 
+import persons_and_camera
 from constants import *
 from functions import *
-
-
-def load_image(name):
-    fullname = os.path.join('images/', name)
-    image = pygame.image.load(fullname).convert_alpha()
-    return image
-
-
-def size_img(name, num=1):
-    return pygame.transform.scale(load_image(name), (CELL_SIZE * num, CELL_SIZE * num))
 
 
 class House(pygame.sprite.Sprite):
@@ -131,9 +122,9 @@ class Village:
         self.trees_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.sword_sprites = pygame.sprite.Group()
+        self.enemies_sprites = pygame.sprite.Group()
 
-        self.houses = []
-        self.townhalls = []
+        self.enemies = []
         # Пустые клетки вокруг деревни
         for i in range(-N, self.height + N * 2):
             for j in range(-N, self.width + N * 2):
@@ -166,6 +157,9 @@ class Village:
                 if (x_or_y == 'y' and y1 == int(y) and int(x) < x1 < self.left + self.width * self.cell_size - (int(x) - self.left)) or \
                         (x_or_y == 'x' and x1 == int(x) and int(y) < y1 < self.top + self.height * self.cell_size - (int(y) - self.top)):
                     self.board[i][f"{x1} {y1}"] = Road(self, (x1, y1))
+                    # Спавн врагов с шансом ~ 15%
+                    if random.randint(1, 7) == 1:
+                        self.enemies.append(persons_and_camera.Enemy(self, (x1, y1)))
 
     def generation(self):
         # Пока не сгенерируеться без ошибки (шанс на ошибку примерно 1 к 40)
@@ -236,6 +230,9 @@ class Village:
                 # Заполнение клеток дорогами
                 for coord in coords_square:
                     self.board[coord[0]][coord[1]] = Road(self, coord[1].split())
+                    # Спавн врагов с шансом 75%
+                    if random.randint(1, 4) != 1:
+                        self.enemies.append(persons_and_camera.Enemy(self, coord[1].split()))
                 # Спавн домов -----------------------------------------
                 for coords in coords_for_gen:
                     for i, coord in enumerate(coords):
