@@ -39,7 +39,7 @@ class Hero(pygame.sprite.Sprite):
         super().__init__(other.player_sprites, other.all_sprites)
         pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
         # Переменные
-        self.hp = 10
+        self.hp = 100
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.attack_default = True
@@ -57,8 +57,7 @@ class Hero(pygame.sprite.Sprite):
             if self.hp < 1:
                 self.status = 'destroed'
                 self.hp = 0
-            return self.status
-        return None
+        return self.status
 
     def move_player(self, direction, other):
         # Проверка нужно ли идти в данную сторону
