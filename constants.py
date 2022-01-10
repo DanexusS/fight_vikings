@@ -11,7 +11,7 @@ PLAYER_SIZE = 40
 STEP = 4
 # Для вычисления координат
 STEP_ANGLE = 1
-MIN_COEFF = STEP_ANGLE // 60
+MIN_COEFF = 0.017
 MAX_COEFF = (MIN_COEFF * (360 // STEP_ANGLE))
 # Генерация
 N = random.randrange(20, 30, 2)
