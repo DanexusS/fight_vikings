@@ -3,7 +3,7 @@ import sys
 import threading
 
 import village_generation
-import player_and_camera
+import persons_and_camera
 from constants import *
 
 # Создание окна pygame
