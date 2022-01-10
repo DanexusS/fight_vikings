@@ -52,8 +52,8 @@ class MainGame:
 
         # Создание объектов
         village = village_generation.Village(village_generation.N, village_generation.N)
-        player = player_and_camera.Hero(village, village_generation.N * 2)
-        camera = player_and_camera.Camera()
+        player = persons_and_camera.Hero(village, village_generation.N * 2)
+        camera = persons_and_camera.Camera()
 
         running_menu = True
         while running_menu:
@@ -73,6 +73,10 @@ class MainGame:
 
             # Атака героя
             player.attack(village)
+
+            # Обновления врагов
+            for enemy in village.enemies_sprites:
+                enemy.update(player)
 
             # Обновление камеры
             camera.update(player, width, height)
