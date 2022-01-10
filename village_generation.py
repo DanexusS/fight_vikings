@@ -34,8 +34,7 @@ class House(pygame.sprite.Sprite):
             if self.hp < 1:
                 self.status = 'destroed'
                 self.image = size_img('housedie.png')
-            return self.status
-        return None
+        return self.status
 
 
 class TownHall(pygame.sprite.Sprite):
@@ -83,8 +82,7 @@ class TownHall(pygame.sprite.Sprite):
                     self.image = size_img('townhall1.png', 3)
                 elif self.angle == 3:
                     self.image = size_img('townhall1.png', 3)
-            return self.status
-        return None
+        return self.status
 
 
 class Road(pygame.sprite.Sprite):
