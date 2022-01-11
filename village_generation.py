@@ -329,6 +329,7 @@ class Village:
     def render(self, screen):
         # Отрисовка, визуализация матрицы
         self.all_sprites.draw(screen)
+        self.enemies_sprites.draw(screen)
         self.sword_sprites.draw(screen)
         self.houses_sprites.draw(screen)
         self.townhall_sprites.draw(screen)
