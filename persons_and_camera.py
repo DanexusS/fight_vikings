@@ -23,6 +23,7 @@ class Sword(pygame.sprite.Sprite):
     def attack(self, dmg, other):
         # Если соприкосаеться с объектом - удар
         for group in [other.houses_sprites, other.townhall_sprites, other.enemies_sprites]:
+            print(len(group))
             obj = None
             for sprite in group:
                 if pygame.sprite.collide_mask(self, sprite):
@@ -189,7 +190,7 @@ class Hero(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, other, pos):
-        super().__init__(other.all_sprites)
+        super().__init__(other.enemies_sprites, other.all_sprites)
         # Переменные
         self.hp = 50
         self.status = 'normal'
@@ -215,26 +216,16 @@ class Enemy(pygame.sprite.Sprite):
         if distance < 1000:
             x = WIDTH // 2
             y = HEIGHT // 2
-            # Формула
-            sqrt1 = math.sqrt((self.rect.x - x + 1) * (self.rect.x - x + 1) + (self.rect.y - y + 1) * (self.rect.y - y + 1))
-            sqrt2 = math.sqrt(0 * 0 + 10 * 10)
-            angle = round(-(90 - math.acos(math.cos(((self.rect.x - x) * 0 + (self.rect.y - y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
-            # Выравнивание градуса угла
-            if self.rect.x <= x and self.rect.y <= y:
-                angle = (270 - angle) - 80
-                angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
-            elif self.rect.x <= x and self.rect.y >= y:
-                angle = angle - 10
-                angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
-            elif self.rect.x >= x and self.rect.y <= y:
-                angle -= 190
-                angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
-            elif self.rect.x >= x and self.rect.y >= y:
-                angle = (90 - angle) - 80
-                angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
+            if self.rect.x <= x:
+                self.rect = self.rect.move(STEP, 0)
+            if self.rect.x >= x:
+                self.rect = self.rect.move(-STEP, 0)
+            if self.rect.y <= y:
+                self.rect = self.rect.move(0, STEP)
+            if self.rect.y >= y:
+                self.rect = self.rect.move(0, -STEP)
             # Отрисовка
-            self.rect.x = 0
-            self.rect.y = 0
+
 
 
 class Camera:
