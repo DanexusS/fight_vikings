@@ -22,26 +22,21 @@ class Sword(pygame.sprite.Sprite):
 
     def attack(self, dmg, other):
         # Если соприкосаеться с объектом - удар
-        for group in [other.houses_sprites, other.townhall_sprites, other.enemies_sprites]:
-            print(len(group))
-            obj = None
-            for sprite in group:
-                if pygame.sprite.collide_mask(self, sprite):
-                    obj = sprite
-                    print(obj.__class__.__name__)
-                    break
-            if obj:
+        objs_collide = []
+        for sprite in other.collide_sprites:
+            if pygame.sprite.collide_mask(self, sprite):
+                obj = sprite
+                objs_collide.append(obj)
                 # Бьёт 1 раз
                 if not obj.is_dmg:
                     status = obj.damage(dmg)
                     if obj.__class__.__name__ == 'Enemy' and status == 'destroed':
-                        other.enemies_sprites.remove(obj)
+                        obj.kill()
                         other.enemies.remove(obj)
-
-            else:
-                # Перезагрузка удара
-                for sprite in group:
-                    sprite.is_dmg = False
+        # Перезагрузка удара
+        for sprite in other.collide_sprites:
+            if sprite not in objs_collide:
+                sprite.is_dmg = False
 
 
 class Hero(pygame.sprite.Sprite):
@@ -49,9 +44,10 @@ class Hero(pygame.sprite.Sprite):
         super().__init__(other.player_sprites, other.all_sprites)
         pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
         # Переменные
-        self.hp = 100
+        self.hp = 200
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
+        self.mask = pygame.mask.from_surface(self.image)
         self.attack_default = True
         self.angle_attack_range = 0
         self.angle_move = 0
@@ -190,9 +186,9 @@ class Hero(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, other, pos):
-        super().__init__(other.enemies_sprites, other.all_sprites)
+        super().__init__(other.enemies_sprites, other.all_sprites, other.collide_sprites)
         # Переменные
-        self.hp = 50
+        self.hp = 80
         self.status = 'normal'
         self.image = pygame.transform.scale(load_image('enemy.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
@@ -210,22 +206,30 @@ class Enemy(pygame.sprite.Sprite):
                 self.hp = 0
         return self.status
 
+    def obstacle_avoidance(self):
+        # Проверка на возможность столкновения
+        availability = {'left': True, 'right': True, 'up': True, 'down': True}
+        for elem in [self.rect.move((STEP - 1), 0), self.rect.move(-(STEP - 1), 0)]:
+            old_rect = self.rect
+            self.rect = elem
+            for sprite in other.collide_sprites:
+                if pygame.sprite.collide_mask(self, sprite):
+                    obj = sprite
+
     def update(self, player):
-        self.rect = self.rect.move(0, 0)
-        distance = math.sqrt((self.rect.x - player.rect.x) ** 2 + (self.rect.x - player.rect.x) ** 2)
-        if distance < 1000:
+        if 100 < self.rect.x < WIDTH - 100 and 50 < self.rect.y < HEIGHT - 50:
             x = WIDTH // 2
             y = HEIGHT // 2
+            # Ходьба по маршруту
             if self.rect.x <= x:
-                self.rect = self.rect.move(STEP, 0)
+                self.rect = self.rect.move((STEP - 1), 0)
             if self.rect.x >= x:
-                self.rect = self.rect.move(-STEP, 0)
+                self.rect = self.rect.move(-(STEP - 1), 0)
             if self.rect.y <= y:
-                self.rect = self.rect.move(0, STEP)
+                self.rect = self.rect.move(0, (STEP - 1))
             if self.rect.y >= y:
-                self.rect = self.rect.move(0, -STEP)
-            # Отрисовка
-
+                self.rect = self.rect.move(0, -(STEP - 1))
+            #self.obstacle_avoidance()
 
 
 class Camera:
