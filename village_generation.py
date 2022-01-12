@@ -7,7 +7,7 @@ from functions import *
 
 class House(pygame.sprite.Sprite):
     def __init__(self, other, pos):
-        super().__init__(other.houses_sprites, other.all_sprites)
+        super().__init__(other.houses_sprites, other.all_sprites, other.collide_sprites)
         # Переменные
         self.hp = 100
         self.status = 'normal'
@@ -30,7 +30,7 @@ class House(pygame.sprite.Sprite):
 
 class TownHall(pygame.sprite.Sprite):
     def __init__(self, other, pos, angle):
-        super().__init__(other.townhall_sprites, other.all_sprites)
+        super().__init__(other.townhall_sprites, other.all_sprites, other.collide_sprites)
         # Переменные
         x, y = pos
         self.hp = 600
@@ -98,7 +98,7 @@ class Grass(pygame.sprite.Sprite):
 
 class Tree(pygame.sprite.Sprite):
     def __init__(self, other, pos):
-        super().__init__(other.trees_sprites, other.all_sprites)
+        super().__init__(other.trees_sprites, other.all_sprites, other.collide_sprites)
         # Переменные
         self.image = size_img('tree.png')
         self.rect = self.image.get_rect()
@@ -116,7 +116,10 @@ class Village:
         self.left = EMPTY_N * CELL_SIZE
         self.top = EMPTY_N * CELL_SIZE
 
+        # Общие группы
         self.all_sprites = pygame.sprite.Group()
+        self.collide_sprites = pygame.sprite.Group()
+        # Определённые группы
         self.houses_sprites = pygame.sprite.Group()
         self.townhall_sprites = pygame.sprite.Group()
         self.trees_sprites = pygame.sprite.Group()
