@@ -5,7 +5,7 @@ from constants import *
 from functions import *
 
 
-class Sword(pygame.sprite.Sprite):
+class Weapon(pygame.sprite.Sprite):
     def __init__(self, other):
         super().__init__(other.sword_sprites)
         # Переменные
@@ -43,17 +43,20 @@ class Hero(pygame.sprite.Sprite):
     def __init__(self, other, n):
         super().__init__(other.player_sprites, other.all_sprites)
         pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
-        # Переменные
-        self.hp = 200
-        self.status = 'normal'
+        # Переменные, основные
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
-        self.attack_default = True
-        self.angle_attack_range = 0
-        self.angle_move = 0
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0]) * CELL_SIZE
         self.rect.y = int(pos[1]) * CELL_SIZE
+        # Переменные, атака
+        self.is_attack = [False, False]
+        self.angle_attack_range = None
+        self.angle_attack_move = None
+        self.count_attack = -1
+        # Переменные, прочие
+        self.hp = 200
+        self.status = 'normal'
         self.directions = {(0, -STEP): False, (-STEP, 0): False, (0, STEP): False, (STEP, 0): False}
         self.run = 1
 
@@ -87,73 +90,93 @@ class Hero(pygame.sprite.Sprite):
             if collide:
                 self.rect = self.rect.move(-x, -y)
 
+    def search_angle(self):
+        # Переменные
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        x = WIDTH // 2 - PLAYER_SIZE // 2 - 5
+        y = HEIGHT // 2 - PLAYER_SIZE // 2 - 5
+        angle_move = 0
+        # Формула
+        sqrt1 = math.sqrt((mouse_x - x + 1) * (mouse_x - x + 1) + (mouse_y - y + 1) * (mouse_y - y + 1))
+        sqrt2 = math.sqrt(0 * 0 + 10 * 10)
+        angle = round(-(90 - math.acos(math.cos(((mouse_x - x) * 0 + (mouse_y - y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
+        # Выравнивание градуса угла
+        if mouse_x <= x and mouse_y <= y:
+            angle = (270 - angle) - 80
+            angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
+        elif mouse_x <= x and mouse_y >= y:
+            angle = angle - 10
+            angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
+        elif mouse_x >= x and mouse_y <= y:
+            angle -= 190
+            angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
+        elif mouse_x >= x and mouse_y >= y:
+            angle = (90 - angle) - 80
+            angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
+        return [angle, angle_move]
+
+    def step_and_draw_attack(self, size_step_attack):
+        # Отрисовка
+        self.weapon.image = pygame.transform.rotate(self.weapon.image, self.angle_attack_range)
+        self.weapon.rect = self.weapon.image.get_rect()
+        self.weapon.rect.x = x + r * math.sin(self.angle_attack_move)
+        self.weapon.rect.y = y + r * math.cos(self.angle_attack_move)
+        # Шаг
+        self.angle_attack_range -= STEP_ANGLE * size_step_attack
+        self.angle_attack_move -= MIN_COEFF * size_step_attack
+        self.count_attack -= 1
+
     def attack(self, other):
         # Очистка
         for sword in other.sword_sprites:
             other.sword_sprites.remove(sword)
-        self.sword = Sword(other)
+        self.weapon = Weapon(other)
+        # Переменные
+        x = WIDTH // 2 - PLAYER_SIZE // 2 - 5
+        y = HEIGHT // 2 - PLAYER_SIZE // 2 - 5
+        r = 45
         # Обычная атака
-        if bool(self.attack_default):
-            # Переменные
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            dmg = 8
-            r = 45
-            x = WIDTH // 2
-            y = HEIGHT // 2
-            # Формула
-            sqrt1 = math.sqrt((mouse_x - x + 1) * (mouse_x - x + 1) + (mouse_y - y + 1) * (mouse_y - y + 1))
-            sqrt2 = math.sqrt(0 * 0 + 10 * 10)
-            angle = round(-(90 - math.acos(math.cos(((mouse_x - x) * 0 + (mouse_y - y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
-            # Выравнивание градуса угла
-            if mouse_x <= x and mouse_y <= y:
-                angle = (270 - angle) - 80
-                angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
-            elif mouse_x <= x and mouse_y >= y:
-                angle = angle - 10
-                angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
-            elif mouse_x >= x and mouse_y <= y:
-                angle -= 190
-                angle_move = MAX_COEFF - (MIN_COEFF * abs(angle // STEP_ANGLE))
-            elif mouse_x >= x and mouse_y >= y:
-                angle = (90 - angle) - 80
-                angle_move = MIN_COEFF * abs(angle // STEP_ANGLE)
-            # Отрисовка
-            self.sword.image = pygame.transform.rotate(self.sword.image, angle)
-            self.sword.rect = self.sword.image.get_rect()
-            self.sword.rect.x = x + r * math.sin(angle_move)
-            self.sword.rect.y = y + r * math.cos(angle_move)
-            # Проверка на атаку
-            self.sword.attack(dmg, other)
+        if self.is_attack[0]:
+            size_step_attack = 8
+            # Начало цикла атаки
+            if self.count_attack == -1:
+                self.angle_attack_range, self.angle_attack_move = self.search_angle()[0] + 40, self.search_angle()[1] + MIN_COEFF * 40
+                self.count_attack = 10
+            # Отрисовка и шаг
+            self.step_and_draw_attack(size_step_attack)
+            # Атака
+            self.weapon.attack(8, other)
+            # Конец цикла атаки
+            if self.count_attack == 0:
+                self.count_attack = -1
+                self.is_attack[0] = False
         # Круговая атака
-        elif bool(self.angle_attack_range):
-            # Переменные
-            dmg = 4
-            r = 45
-            step_angle = 15
-            step_coeff = 0.26
-            # Отрисовка
-            self.sword.image = pygame.transform.rotate(self.sword.image, self.angle_attack_range)
-            self.sword.rect = self.sword.image.get_rect()
-            self.sword.rect.x = WIDTH // 2 + r * math.sin(self.angle_move)
-            self.sword.rect.y = HEIGHT // 2 + r * math.cos(self.angle_move)
-            self.angle_attack_range -= step_angle
-            self.angle_move -= step_coeff
-            # Проверка на атаку
-            self.sword.attack(dmg, other)
-            if self.angle_attack_range == 0:
-                self.attack_default = True
+        elif self.is_attack[1]:
+            size_step_attack = 12
+            # Начало цикла атаки
+            if self.count_attack == -1:
+                self.angle_attack_range, self.angle_attack_move = self.search_angle()
+                self.count_attack = 360 // step_attack
+            # Отрисовка и шаг
+            self.step_and_draw_attack(size_step_attack)
+            # Атака
+            self.weapon.attack(4, other)
+            # Конец цикла атаки
+            if self.count_attack == 0:
+                self.count_attack = -1
+                self.is_attack[1] = False
         else:
-            # Если герой не атакует, то меч за экраном
-            self.sword.rect.x = -100
-            self.sword.rect.y = -100
+            # Если герой не атакует, то меч удалить
+            self.weapon.kill()
 
     def update(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if not any(self.is_attack):
+                    self.is_attack[0] = True
             if event.button == 3:
-                if self.angle_attack_range == 0:
-                    self.angle_attack_range = 360
-                    self.angle_move = 0.26 * (360 // 15)
-                    self.attack_default = False
+                if not any(self.is_attack):
+                    self.is_attack[1] = True
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
@@ -218,8 +241,8 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self, player):
         if 100 < self.rect.x < WIDTH - 100 and 50 < self.rect.y < HEIGHT - 50:
-            x = WIDTH // 2
-            y = HEIGHT // 2
+            x = WIDTH // 2 - PLAYER_SIZE // 2
+            y = HEIGHT // 2 - PLAYER_SIZE // 2
             # Ходьба по маршруту
             if self.rect.x <= x:
                 self.rect = self.rect.move((STEP - 1), 0)
@@ -229,7 +252,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect = self.rect.move(0, (STEP - 1))
             if self.rect.y >= y:
                 self.rect = self.rect.move(0, -(STEP - 1))
-            #self.obstacle_avoidance()
+            # self.obstacle_avoidance()
 
 
 class Camera:
@@ -242,5 +265,5 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target, width, height):
-        self.dx = -(target.rect.x - width // 2) + 5
-        self.dy = -(target.rect.y - height // 2) + 5
+        self.dx = -(target.rect.x - width // 2) - PLAYER_SIZE // 2
+        self.dy = -(target.rect.y - height // 2) - PLAYER_SIZE // 2
