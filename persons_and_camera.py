@@ -175,7 +175,7 @@ class Hero(pygame.sprite.Sprite):
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
-                self.run = 2
+                self.run = 1.8
 
             if event.key == pygame.K_w:
                 self.directions[(0, -STEP)] = True
@@ -224,21 +224,44 @@ class Enemy(pygame.sprite.Sprite):
                 self.hp = 0
         return self.status
 
-    def obstacle_avoidance(self):
+    def obstacle_avoidance(self, other):
         # Проверка на возможность столкновения
+        c = 5
+        move = [self.rect.move((STEP - 1) * c, 0), self.rect.move(-(STEP - 1) * c, 0),
+                self.rect.move(0, (STEP - 1) * c), self.rect.move(0, -(STEP - 1) * c)]
         availability = {'left': True, 'right': True, 'up': True, 'down': True}
-        for elem in [self.rect.move((STEP - 1), 0), self.rect.move(-(STEP - 1), 0)]:
-            old_rect = self.rect
+        for i, elem in enumerate(move):
+            old_rect = self.rect.copy()
             self.rect = elem
             for sprite in other.collide_sprites:
-                if pygame.sprite.collide_mask(self, sprite):
-                    obj = sprite
+                if pygame.sprite.collide_mask(self, sprite) and sprite != self:
+                    availability[list(availability.keys())[i]] = False
+            self.rect = old_rect
+        return availability
 
-    def update(self, player):
+    def update(self, other):
         if 100 < self.rect.x < WIDTH - 100 and 50 < self.rect.y < HEIGHT - 50:
             x = WIDTH // 2 - PLAYER_SIZE // 2
             y = HEIGHT // 2 - PLAYER_SIZE // 2
-            # Ходьба по маршруту
+            # Переменная с возможными путями =================== Доделать, но лучше переделать
+            '''
+            availability = self.obstacle_avoidance(other)
+            # Если есть тупики, то обход
+            if not any(list(availability.values())):
+                pass
+            elif not availability['left'] or not availability['right']:
+                if availability['up'] and (not availability['down'] or (abs(self.rect.y - y) > CELL_SIZE and self.rect.y - (STEP - 1) - y > y - (self.rect.y + (STEP - 1)))):
+                    self.rect = self.rect.move(0, -(STEP - 1))
+                elif availability['down']:
+                    self.rect = self.rect.move(0, (STEP - 1))
+            elif not availability['up'] or not availability['down']:
+                if availability['left'] and (not availability['right'] or (abs(self.rect.x - x) > CELL_SIZE and self.rect.x - (STEP - 1) - x > x - (self.rect.x + (STEP - 1)))):
+                    self.rect = self.rect.move(-(STEP - 1), 0)
+                elif availability['right']:
+                    self.rect = self.rect.move((STEP - 1), 0)
+            else:
+            '''
+            # Ходьба к герою
             if self.rect.x <= x:
                 self.rect = self.rect.move((STEP - 1), 0)
             if self.rect.x >= x:
@@ -247,7 +270,6 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect = self.rect.move(0, (STEP - 1))
             if self.rect.y >= y:
                 self.rect = self.rect.move(0, -(STEP - 1))
-            # self.obstacle_avoidance()
 
 
 class Camera:
