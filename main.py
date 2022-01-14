@@ -76,7 +76,7 @@ class MainGame:
 
             # Обновления врагов
             for enemy in village.enemies_sprites:
-                enemy.update(player)
+                enemy.update(village)
 
             # Обновление камеры
             camera.update(player, width, height)
