@@ -1,4 +1,4 @@
-from math import sin, cos, acos
+from math import *
 
 from main_functions import *
 from persons_and_camera import Weapon
@@ -36,8 +36,7 @@ class PlayerAttributes:
 
 class Hero(pygame.sprite.Sprite, PlayerAttributes):
     def __init__(self, village, village_size, inventory):
-        super().__init__(village.player_sprites, village.all_sprites)
-
+        super().__init__(village.player_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         pos = random.choice([(village_size // 4, village_size // 2),
                              (village_size // 4 * 3, village_size // 2),
                              (village_size // 2, village_size // 4),
@@ -58,9 +57,11 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
         self.directions = {(0, -STEP): False, (-STEP, 0): False, (0, STEP): False, (STEP, 0): False}
         self.attributes = PlayerAttributes.init()
         self.inventory = inventory
+        self.is_dmg = False
 
     def damage(self, dmg):
         if self.state == PlayerStates.Normal:
+            self.is_dmg = True
             self.attributes[Attributes.Health].current_value -= dmg
             if self.attributes[Attributes.Health].current_value < 1:
                 self.state = PlayerStates.Dead
@@ -76,14 +77,8 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             self.rect = self.rect.move(x, y)
             # Если герой врезался во что то, то возвращаем назад
             collide = False
-            if pygame.sprite.spritecollideany(self, other.trees_sprites):
-                collide = True
-            for sprite in other.houses_sprites:
-                if pygame.sprite.collide_mask(self, sprite):
-                    collide = True
-                    break
-            for sprite in other.townhall_sprites:
-                if pygame.sprite.collide_mask(self, sprite):
+            for sprite in other.collide_sprites:
+                if pygame.sprite.collide_mask(self, sprite) and sprite != self:
                     collide = True
                     break
             if collide:
@@ -95,7 +90,9 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
         mouse = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         # Формула
         change = mouse - PLAYER_CENTER
-        angle = -round(90 - acos(cos(change.y / ((change.x ** 2 + change.y ** 2) ** 2 * 10 ** 3))) * 100)
+        # Формула
+        sqrt1 = sqrt((change.x + 1) * (change.x + 1) + (change.y + 1) * (change.y + 1))
+        angle = -round(90 - acos(cos((change.y * 10) / ((sqrt1 * 10) + 1))) * 100)
         # Выравнивание градуса угла
         if mouse.y >= PLAYER_CENTER.y:
             if mouse.x >= PLAYER_CENTER.x:
@@ -141,12 +138,14 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
                 self.count_attack = 10
             # Отрисовка и шаг
             self.step_and_draw_attack(size_step_attack)
-            # Атака
-            self.weapon.attack(self.attributes[Attributes.Damage].current_value, village)
+            # Атака                                                               \/ временно
+            self.weapon.attack(self.attributes[Attributes.Damage].current_value + 13, village)
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
                 self.is_attack[0] = False
+                for sprite in village.attack_sprites:
+                    sprite.is_dmg = False
         # Круговая атака
         elif self.is_attack[1]:
             size_step_attack = 12
@@ -162,6 +161,8 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             if self.count_attack == 0:
                 self.count_attack = -1
                 self.is_attack[1] = False
+                for sprite in village.attack_sprites:
+                    sprite.is_dmg = False
         else:
             # Если герой не атакует, то меч удалить
             self.weapon.kill()
