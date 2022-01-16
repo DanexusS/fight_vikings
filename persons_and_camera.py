@@ -38,16 +38,18 @@ class Weapon(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
-        super().__init__(other.enemies_sprites, other.all_sprites, other.collide_sprites)
-        # Переменные
-        self.hp = 80
-        self.status = 'normal'
+    def __init__(self, village, pos):
+        super().__init__(village.enemies_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
+        # Переменные, основные
         self.image = pygame.transform.scale(load_image('enemy.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
         self.rect.y = int(pos[1]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
+        # Переменные, прочие
+        self.pos = [self.rect.x, self.rect.y]
+        self.hp = 80
+        self.status = 'normal'
         self.is_dmg = False
 
     def damage(self, dmg):
@@ -59,52 +61,34 @@ class Enemy(pygame.sprite.Sprite):
                 self.hp = 0
         return self.status
 
-    def obstacle_avoidance(self, other):
-        # Проверка на возможность столкновения
-        c = 5
-        move = [self.rect.move((STEP - 1) * c, 0), self.rect.move(-(STEP - 1) * c, 0),
-                self.rect.move(0, (STEP - 1) * c), self.rect.move(0, -(STEP - 1) * c)]
-        availability = {'left': True, 'right': True, 'up': True, 'down': True}
-        for i, elem in enumerate(move):
-            old_rect = self.rect.copy()
-            self.rect = elem
-            for sprite in other.collide_sprites:
-                if pygame.sprite.collide_mask(self, sprite) and sprite != self:
-                    availability[list(availability.keys())[i]] = False
-            self.rect = old_rect
-        return availability
+    def back_move(self, other, x_move, y_move):
+        for sprite in other.collide_sprites:
+            if pygame.sprite.collide_mask(self, sprite) and sprite != self:
+                self.rect = self.rect.move(-x_move, -y_move)
+                break
 
     def update(self, other):
         if 100 < self.rect.x < WIDTH - 100 and 50 < self.rect.y < HEIGHT - 50:
             x = WIDTH // 2 - PLAYER_SIZE // 2
             y = HEIGHT // 2 - PLAYER_SIZE // 2
-            # Переменная с возможными путями =================== Доделать, но лучше переделать
-            '''
-            availability = self.obstacle_avoidance(other)
-            # Если есть тупики, то обход
-            if not any(list(availability.values())):
-                pass
-            elif not availability['left'] or not availability['right']:
-                if availability['up'] and (not availability['down'] or (abs(self.rect.y - y) > CELL_SIZE and self.rect.y - (STEP - 1) - y > y - (self.rect.y + (STEP - 1)))):
-                    self.rect = self.rect.move(0, -(STEP - 1))
-                elif availability['down']:
-                    self.rect = self.rect.move(0, (STEP - 1))
-            elif not availability['up'] or not availability['down']:
-                if availability['left'] and (not availability['right'] or (abs(self.rect.x - x) > CELL_SIZE and self.rect.x - (STEP - 1) - x > x - (self.rect.x + (STEP - 1)))):
-                    self.rect = self.rect.move(-(STEP - 1), 0)
-                elif availability['right']:
-                    self.rect = self.rect.move((STEP - 1), 0)
-            else:
-            '''
-            # Ходьба к герою
-            if self.rect.x <= x:
-                self.rect = self.rect.move((STEP - 1), 0)
-            if self.rect.x >= x:
-                self.rect = self.rect.move(-(STEP - 1), 0)
-            if self.rect.y <= y:
-                self.rect = self.rect.move(0, (STEP - 1))
-            if self.rect.y >= y:
-                self.rect = self.rect.move(0, -(STEP - 1))
+        elif self.rect.x != self.pos[0] or self.rect.y != self.pos[1]:
+            x = self.pos[0]
+            y = self.pos[1]
+        else:
+            return
+        # Ходьба к герою
+        if self.rect.x <= x:
+            self.rect = self.rect.move((STEP - 1), 0)
+            self.back_move(other, (STEP - 1), 0)
+        if self.rect.x >= x:
+            self.rect = self.rect.move(-(STEP - 1), 0)
+            self.back_move(other, -(STEP - 1), 0)
+        if self.rect.y <= y:
+            self.rect = self.rect.move(0, (STEP - 1))
+            self.back_move(other, 0, (STEP - 1))
+        if self.rect.y >= y:
+            self.rect = self.rect.move(0, -(STEP - 1))
+            self.back_move(other, 0, -(STEP - 1))
 
 
 class Camera:
@@ -115,6 +99,9 @@ class Camera:
     def apply(self, obj):
         obj.rect.x += self.dx
         obj.rect.y += self.dy
+        if obj.__class__.__name__ == 'Enemy':
+            obj.pos[0] += self.dx
+            obj.pos[1] += self.dy
 
     def update(self, target, width, height):
         self.dx = -(target.rect.x - width // 2) - PLAYER_SIZE // 2
