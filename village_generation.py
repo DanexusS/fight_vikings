@@ -1,7 +1,4 @@
-import pygame
-
 import persons_and_camera
-from constants import *
 from main_functions import *
 
 
@@ -129,8 +126,8 @@ class Village:
 
         self.enemies = []
         # Пустые клетки вокруг деревни
-        for i in range(-N, self.height + N * 2):
-            for j in range(-N, self.width + N * 2):
+        for i in range(-MAP_SIZE, self.height + MAP_SIZE * 2):
+            for j in range(-MAP_SIZE, self.width + MAP_SIZE * 2):
                 x = j * self.cell_size
                 y = i * self.cell_size
                 Grass(self, (x, y))

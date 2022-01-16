@@ -55,7 +55,6 @@ class MainGame:
 
     def inventory_opened(self):
         interface = Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5))
-        interface2 = Interface(Inventory(5, 5), Vector2(5, 5), Vector2(50, 900))
         threading.Thread(target=interface.render_slots()).start()
 
         running_inv = True
@@ -64,15 +63,11 @@ class MainGame:
                 if event.type == pygame.QUIT:
                     running_inv = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    interface2.slot_clicked(event.pos)
                     interface.slot_clicked(event.pos)
                 elif event.type == pygame.MOUSEMOTION:
-                    interface2.slot_hover(event.pos)
-                    interface2.moving_item(event.pos)
                     interface.slot_hover(event.pos)
                     interface.moving_item(event.pos)
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    interface2.drop_item(event.pos)
                     interface.drop_item(event.pos)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_i:
@@ -80,7 +75,6 @@ class MainGame:
 
             screen.fill(BG_COLOR)
             interface.render_slots()
-            interface2.render_slots()
             pygame.display.flip()
 
     def main_game(self):
@@ -152,8 +146,8 @@ class MainGame:
                         thread.start()
 
                         # Создание объектов
-                        self.village = village_generation.Village(village_generation.N, village_generation.N)
-                        self.player = Hero(self.village, village_generation.N * 2, Inventory(60, 10, [items_db["Sword"]]))
+                        self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+                        self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10, [items_db["Sword"]]))
                         self.camera = persons_and_camera.Camera()
 
                         self.main_game()

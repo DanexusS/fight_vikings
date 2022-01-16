@@ -3,9 +3,8 @@ import pygame
 from enums import Enum
 from pygame import Vector2
 
-"""
-    Общие
-"""
+
+"""Общие"""
 
 
 WIDTH = 1920
@@ -16,9 +15,7 @@ BG_BTN_SHADOW = '#242429'
 SIZE_MENU_BTN = Vector2(300, 80)
 
 
-"""
-    Игрок
-"""
+"""Игрок"""
 
 
 PLAYER_SIZE = 40
@@ -26,9 +23,7 @@ STEP = 4
 PLAYER_CENTER = Vector2(WIDTH // 2 - PLAYER_SIZE // 2, HEIGHT // 2 - PLAYER_SIZE // 2)
 
 
-"""
-    Для вычисления координат
-"""
+"""Для вычисления координат"""
 
 
 STEP_ANGLE = 1
@@ -36,23 +31,19 @@ MIN_COE = 0.017
 MAX_COE = (MIN_COE * (360 // STEP_ANGLE))
 
 
-"""
-    Генерация
-"""
+"""Генерация"""
 
 
-N = random.randrange(20, 30, 2)
-EMPTY_N = N // 2
+MAP_SIZE = random.randrange(20, 30, 2)
+EMPTY_N = MAP_SIZE // 2
 CELL_SIZE = 180
-MIN_ROAD = N // 10
+MIN_ROAD = MAP_SIZE // 10
 MAX_ROAD = MIN_ROAD * 2
-MASK = N // 5
-RANGE_SQUARE = N // 2.5
+MASK = MAP_SIZE // 5
+RANGE_SQUARE = MAP_SIZE // 2.5
 
 
-"""
-    Инвентарь
-"""
+"""Инвентарь"""
 
 
 class Attributes(Enum):

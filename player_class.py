@@ -35,8 +35,8 @@ class PlayerAttributes:
 
 
 class Hero(pygame.sprite.Sprite, PlayerAttributes):
-    def __init__(self, other, n, inventory):
-        super().__init__(other.player_sprites, other.all_sprites)
+    def __init__(self, village, village_size, inventory):
+        super().__init__(village.player_sprites, village.all_sprites)
 
         pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
         # Переменные, основные
