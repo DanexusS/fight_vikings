@@ -1,11 +1,8 @@
-class Attributes:
-    Move_Speed = 0
-    Attack_Speed = 1
-    Damage = 2
-    # потом дополнить
+from enums import Enum
+from player_inventory import Attributes
 
 
-class ItemType:
+class ItemType(Enum):
     Food = 0
     Equipment = 1
     Weapon = 2
@@ -13,7 +10,7 @@ class ItemType:
 
 
 class ItemBuff:
-    def __init__(self, affected_attribute: Attributes, value: int):
+    def __init__(self, affected_attribute: Attributes, value: float):
         self.affected_attribute = affected_attribute
         self.value = value
 
@@ -39,18 +36,19 @@ class FoodItem(AbstractItem):
 
 #   КЛАСС СНАРЯЖЕНИЯ
 class EquipmentItem(AbstractItem):
-    def __init__(self, title: str, durability: int, buff: ItemBuff = None):
+    def __init__(self, title: str, durability: int, buffs: list[ItemBuff] = None):
         super().__init__(title)
 
         self.TYPE = ItemType.Equipment
-        self.buffs = buff
+        self.buffs = buffs
         self.is_stackable = False
         self.durability = durability
 
 
+#   КЛАСС ОРУЖИЯ
 class WeaponItem(EquipmentItem):
-    def __init__(self, title: str, durability: int, damage: int, buff: ItemBuff = None, ):
-        super().__init__(title, durability, buff)
+    def __init__(self, title: str, durability: int, damage: int, buffs: list[ItemBuff] = None):
+        super().__init__(title, durability, buffs)
 
         self.TYPE = ItemType.Weapon
-        self.damage = damage
+        self.damage = ItemBuff(Attributes.from_value(2), damage)

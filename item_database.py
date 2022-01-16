@@ -1,5 +1,6 @@
 import sqlite3
 from items import *
+from player_inventory import Attributes
 
 
 def init():
@@ -17,12 +18,22 @@ def init():
             item = FoodItem(_title)
             item.is_stackable = elem[3] == "True"
         elif _type == "Equipment":
-            item = EquipmentItem(_title, int(elem[5]))
+            item = EquipmentItem(_title, durability=int(elem[6]))
         elif _type == "Weapon":
-            item = WeaponItem(_title, int(elem[5]), int(elem[7]))
+            item = WeaponItem(_title, durability=int(elem[6]), damage=int(elem[7]))
         elif _type == "Item":
             item = AbstractItem(_title)
+            item.TYPE = ItemType.Item
             item.is_stackable = elem[3] == "True"
+
+        if _type == "Weapon" or _type == "Equipment":
+            if elem[5] != -1:
+                for buff_id in map(int, str(elem[5]).split(";")):
+                    print(buff_id)
+                    buffs_db = cur.execute(f"""SELECT * FROM buffs WHERE {int(buff_id)} = buffs.id""").fetchone()
+
+                    if int(buffs_db[1]) > 0:
+                        item.buffs.append(ItemBuff(Attributes.from_value(int(buffs_db[1]) - 1), float(buffs_db[2])))
 
         if item is not None:
             item.ID = elem[0]

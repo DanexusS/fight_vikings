@@ -12,16 +12,18 @@ class InventorySlot:
         self.ui_display = item.image
         self.parent = None
         self.mouse_hovered = False
+        self.is_moving = False
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
         self.item = item
         self.amount = amount
+        self.ui_display = item.image
 
     def add_amount(self, amount: int):
         self.update_slot(self.item, self.amount + amount)
 
     def can_place_in_slot(self, item: AbstractItem) -> bool:
-        if self.allowed_types is None or item is None or item.ID == -1:
+        if self.allowed_types == [] or item is None or item.ID == -1:
             return True
         return item.TYPE in self.allowed_types
 
@@ -45,13 +47,13 @@ class Inventory:
                     counter += 1
         return counter
 
-    def add_item(self, item: AbstractItem, amount: int) -> bool:
+    def add_item(self, item: AbstractItem, amount: int = 1) -> bool:
         if self.empty_slot_count() <= 0:
             return False
 
         slot = self.find_item_in_inv(item)
 
-        if slot is None:
+        if not item.is_stackable or slot is None:
             self.set_empty_slot(item, amount)
             return True
 
