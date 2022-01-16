@@ -1,4 +1,4 @@
-import math
+from math import sin, cos, acos
 
 from main_functions import *
 from persons_and_camera import Weapon
@@ -92,28 +92,25 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
     @staticmethod
     def search_angle():
         # Переменные
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        angle_move = 0
+        mouse = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         # Формула
-        sqrt1 = math.sqrt(
-            (mouse_x - PLAYER_CENTER.x + 1) * (mouse_x - PLAYER_CENTER.x + 1) + (mouse_y - PLAYER_CENTER.y + 1) * (
-                        mouse_y - PLAYER_CENTER.y + 1))
-        sqrt2 = math.sqrt(0 * 0 + 10 * 10)
-        angle = round(-(90 - math.acos(math.cos(
-            ((mouse_x - PLAYER_CENTER.x) * 0 + (mouse_y - PLAYER_CENTER.y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
+        change = mouse - PLAYER_CENTER
+        angle = -round(90 - acos(cos(change.y / ((change.x ** 2 + change.y ** 2) ** 2 * 10 ** 3))) * 100)
         # Выравнивание градуса угла
-        if mouse_x <= PLAYER_CENTER.x and mouse_y <= PLAYER_CENTER.y:
-            angle = 190 - angle
-            angle_move = MIN_COE * abs(angle // STEP_ANGLE)
-        elif mouse_x >= PLAYER_CENTER.x and mouse_y >= PLAYER_CENTER.y:
-            angle = 10 - angle
-            angle_move = MIN_COE * abs(angle // STEP_ANGLE)
-        elif mouse_x <= PLAYER_CENTER.x and mouse_y >= PLAYER_CENTER.y:
-            angle = angle - 10
-            angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
-        elif mouse_x >= PLAYER_CENTER.x and mouse_y <= PLAYER_CENTER.y:
-            angle = angle - 190
-            angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
+        if mouse.y >= PLAYER_CENTER.y:
+            if mouse.x >= PLAYER_CENTER.x:
+                angle = 10 - angle
+                angle_move = MIN_COE * abs(angle // STEP_ANGLE)
+            else:
+                angle = angle - 10
+                angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
+        else:
+            if mouse.x >= PLAYER_CENTER.x:
+                angle -= 190
+                angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
+            else:
+                angle = 190 - angle
+                angle_move = MIN_COE * abs(angle // STEP_ANGLE)
 
         return [angle, angle_move]
 
@@ -122,18 +119,18 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
         # Отрисовка
         self.weapon.image = pygame.transform.rotate(self.weapon.image, self.angle_attack_range)
         self.weapon.rect = self.weapon.image.get_rect()
-        self.weapon.rect.x = PLAYER_CENTER.x + radius * math.sin(self.angle_attack_move)
-        self.weapon.rect.y = PLAYER_CENTER.y + radius * math.cos(self.angle_attack_move)
+        self.weapon.rect.x = PLAYER_CENTER.x + radius * sin(self.angle_attack_move)
+        self.weapon.rect.y = PLAYER_CENTER.y + radius * cos(self.angle_attack_move)
         # Шаг
         self.angle_attack_range -= STEP_ANGLE * size_step_attack
         self.angle_attack_move -= MIN_COE * size_step_attack
         self.count_attack -= 1
 
-    def attack(self, other):
+    def attack(self, village):
         # Очистка
-        for sword in other.sword_sprites:
-            other.sword_sprites.remove(sword)
-        self.weapon = Weapon(other)
+        for sword in village.sword_sprites:
+            village.sword_sprites.remove(sword)
+        self.weapon = Weapon(village)
         # Обычная атака
         if self.is_attack[0]:
             size_step_attack = 8
@@ -145,7 +142,7 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             # Отрисовка и шаг
             self.step_and_draw_attack(size_step_attack)
             # Атака
-            self.weapon.attack(8, other)
+            self.weapon.attack(self.attributes[Attributes.Damage].current_value, village)
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
@@ -160,7 +157,7 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             # Отрисовка и шаг
             self.step_and_draw_attack(size_step_attack)
             # Атака
-            self.weapon.attack(4, other)
+            self.weapon.attack(self.attributes[Attributes.Damage].current_value // 2, village)
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
