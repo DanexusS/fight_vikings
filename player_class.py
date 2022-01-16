@@ -38,7 +38,10 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
     def __init__(self, village, village_size, inventory):
         super().__init__(village.player_sprites, village.all_sprites)
 
-        pos = random.choice([(n // 4, n // 2), (n // 4 * 3, n // 2), (n // 2, n // 4), (n // 2, n // 4 * 3)])
+        pos = random.choice([(village_size // 4, village_size // 2),
+                             (village_size // 4 * 3, village_size // 2),
+                             (village_size // 2, village_size // 4),
+                             (village_size // 2, village_size // 4 * 3)])
         # Переменные, основные
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
@@ -100,26 +103,27 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             ((mouse_x - PLAYER_CENTER.x) * 0 + (mouse_y - PLAYER_CENTER.y) * 10) / ((sqrt1 * sqrt2) + 1))) * 100))
         # Выравнивание градуса угла
         if mouse_x <= PLAYER_CENTER.x and mouse_y <= PLAYER_CENTER.y:
-            angle = (270 - angle) - 80
+            angle = 190 - angle
+            angle_move = MIN_COE * abs(angle // STEP_ANGLE)
+        elif mouse_x >= PLAYER_CENTER.x and mouse_y >= PLAYER_CENTER.y:
+            angle = 10 - angle
             angle_move = MIN_COE * abs(angle // STEP_ANGLE)
         elif mouse_x <= PLAYER_CENTER.x and mouse_y >= PLAYER_CENTER.y:
             angle = angle - 10
             angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
         elif mouse_x >= PLAYER_CENTER.x and mouse_y <= PLAYER_CENTER.y:
-            angle -= 190
+            angle = angle - 190
             angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
-        elif mouse_x >= PLAYER_CENTER.x and mouse_y >= PLAYER_CENTER.y:
-            angle = (90 - angle) - 80
-            angle_move = MIN_COE * abs(angle // STEP_ANGLE)
+
         return [angle, angle_move]
 
     def step_and_draw_attack(self, size_step_attack):
-        r = 45
+        radius = 45
         # Отрисовка
         self.weapon.image = pygame.transform.rotate(self.weapon.image, self.angle_attack_range)
         self.weapon.rect = self.weapon.image.get_rect()
-        self.weapon.rect.x = PLAYER_CENTER.x + r * math.sin(self.angle_attack_move)
-        self.weapon.rect.y = PLAYER_CENTER.y + r * math.cos(self.angle_attack_move)
+        self.weapon.rect.x = PLAYER_CENTER.x + radius * math.sin(self.angle_attack_move)
+        self.weapon.rect.y = PLAYER_CENTER.y + radius * math.cos(self.angle_attack_move)
         # Шаг
         self.angle_attack_range -= STEP_ANGLE * size_step_attack
         self.angle_attack_move -= MIN_COE * size_step_attack
