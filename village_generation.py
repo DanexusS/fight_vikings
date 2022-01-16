@@ -2,7 +2,7 @@ import pygame
 
 import persons_and_camera
 from constants import *
-from functions import *
+from main_functions import *
 
 
 class House(pygame.sprite.Sprite):
