@@ -3,10 +3,10 @@ from main_functions import *
 
 
 class House(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
-        super().__init__(other.houses_sprites, other.all_sprites, other.collide_sprites)
+    def __init__(self, village, pos):
+        super().__init__(village.houses_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
-        self.hp = 100
+        self.hp = 150
         self.status = 'normal'
         self.image = size_img('house.png')
         self.mask = pygame.mask.from_surface(size_img('mask_house.png'))
@@ -26,30 +26,24 @@ class House(pygame.sprite.Sprite):
 
 
 class TownHall(pygame.sprite.Sprite):
-    def __init__(self, other, pos, angle):
-        super().__init__(other.townhall_sprites, other.all_sprites, other.collide_sprites)
+    def __init__(self, village, pos, angle):
+        super().__init__(village.townhall_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
         x, y = pos
-        self.hp = 600
+        self.hp = 800
         self.status = 'normal'
         self.angle = angle
         # Установка картинок
+        self.image = size_img(f"townhall{self.angle}.png", 3)
+        self.mask = pygame.mask.from_surface(size_img(f"mask_townhall{self.angle}.png", 3))
         if self.angle == 0:
-            self.image = size_img('townhall3.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall3.png', 3))
             y -= CELL_SIZE * 0.2
         elif self.angle == 1:
-            self.image = size_img('townhall4.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall4.png', 3))
             x -= CELL_SIZE
             y -= CELL_SIZE * 0.2
         elif self.angle == 2:
-            self.image = size_img('townhall2.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall2.png', 3))
             y -= CELL_SIZE * 2
         elif self.angle == 3:
-            self.image = size_img('townhall1.png', 3)
-            self.mask = pygame.mask.from_surface(size_img('mask_townhall1.png', 3))
             y -= CELL_SIZE
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -62,20 +56,13 @@ class TownHall(pygame.sprite.Sprite):
             self.hp -= dmg
             if self.hp < 1:
                 self.status = 'destroed'
-                if self.angle == 0:
-                    self.image = size_img('townhall1.png', 3)
-                elif self.angle == 1:
-                    self.image = size_img('townhall1.png', 3)
-                elif self.angle == 2:
-                    self.image = size_img('townhall1.png', 3)
-                elif self.angle == 3:
-                    self.image = size_img('townhall1.png', 3)
+                self.image = size_img(f"townhall{self.angle}.png", 3)
         return self.status
 
 
 class Road(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
-        super().__init__(other.all_sprites)
+    def __init__(self, village, pos):
+        super().__init__(village.all_sprites)
         # Переменные
         self.image = size_img('road.png')
         self.rect = self.image.get_rect()
@@ -84,8 +71,8 @@ class Road(pygame.sprite.Sprite):
 
 
 class Grass(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
-        super().__init__(other.all_sprites)
+    def __init__(self, village, pos):
+        super().__init__(village.all_sprites)
         # Переменные
         self.image = size_img('grass.png')
         self.rect = self.image.get_rect()
@@ -94,8 +81,8 @@ class Grass(pygame.sprite.Sprite):
 
 
 class Tree(pygame.sprite.Sprite):
-    def __init__(self, other, pos):
-        super().__init__(other.trees_sprites, other.all_sprites, other.collide_sprites)
+    def __init__(self, village, pos):
+        super().__init__(village.trees_sprites, village.all_sprites, village.collide_sprites)
         # Переменные
         self.image = size_img('tree.png')
         self.rect = self.image.get_rect()
@@ -123,6 +110,7 @@ class Village:
         self.player_sprites = pygame.sprite.Group()
         self.sword_sprites = pygame.sprite.Group()
         self.enemies_sprites = pygame.sprite.Group()
+        self.attack_sprites = pygame.sprite.Group()
 
         self.enemies = []
         # Пустые клетки вокруг деревни
@@ -316,7 +304,8 @@ class Village:
                         # Заменяем на траву если тут стоит дом
                         if self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].__class__.__name__ == 'House':
                             self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].kill()
-                            self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = Grass(self, (x + CELL_SIZE * j, y + CELL_SIZE * i))
+                            self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = Grass(self, (
+                            x + CELL_SIZE * j, y + CELL_SIZE * i))
                 # Добавление ратуши, сейчас для того что бы перекрыть всё остальное
                 self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3])
                 # Если всё сработало - выходим из цикла
