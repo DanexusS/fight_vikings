@@ -68,8 +68,7 @@ class MainGame:
                         interface.slot_clicked(event.pos)
                 elif event.type == pygame.MOUSEMOTION:
                     for interface in player_interfaces:
-                        interface.slot_hover(event.pos)
-                        interface.moving_item(event.pos)
+                        interface.mouse_move(event.pos)
                 elif event.type == pygame.MOUSEBUTTONUP:
                     for interface in player_interfaces:
                         interface.drop_item(event.pos)
@@ -157,7 +156,7 @@ class MainGame:
                         # Создание объектов
                         self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
                         self.player = Hero(self.village, MAP_SIZE * 2,
-                                           Inventory(60, 10, [items_db["Sword"]]), Inventory(5, 5))
+                                           Inventory(60, 10), Inventory(5, 5, [items_db["Sword"]]))
                         self.camera = persons_and_camera.Camera()
 
                         self.main_game()

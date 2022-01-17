@@ -1,12 +1,6 @@
-import item_database
-
 from inventory_obj import *
 from constants import *
 
-
-# Инициализация дополнительных компонентов
-pygame.init()
-item_db = item_database.init()
 
 # Константы текста
 AMOUNT_FONT = pygame.font.SysFont("Impact", round(INV_SLOT_SIZE / 4.5))
@@ -16,14 +10,16 @@ INFO_FONTS = {
 }
 
 
-# size = w, h = 1920, 1080
-# screen = pygame.display.set_mode(size)
+class InterfaceTypes(Enum):
+    Regular = 0,
+    Equipment = 1
 
 
 class Mouse:
     def __init__(self):
         self.clicked_slot = None
         self.hovered_slot = None
+        self.interface = None
         self.position = Vector2()
 
 
@@ -141,7 +137,9 @@ class Interface:
 
     #
     # Проверка на перекрытие курсором слота
-    def slot_hover(self, mouse_pos):
+    def mouse_move(self, mouse_pos):
+        self.moving_item(mouse_pos)
+
         cell = self.get_cell(mouse_pos)
         mouse_slot = self.mouse.hovered_slot
 
