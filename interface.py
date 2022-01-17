@@ -2,6 +2,8 @@ from inventory_obj import *
 from constants import *
 
 
+pygame.init()
+
 # Константы текста
 AMOUNT_FONT = pygame.font.SysFont("Impact", round(INV_SLOT_SIZE / 4.5))
 INFO_FONTS = {
@@ -19,7 +21,6 @@ class Mouse:
     def __init__(self):
         self.clicked_slot = None
         self.hovered_slot = None
-        self.interface = None
         self.position = Vector2()
 
 
@@ -117,14 +118,16 @@ class Interface:
     #
     # Вызывается при завершении перетаскивания предмета
     def drop_item(self, mouse_pos):
+        mouse_interface = MOUSE.interface
         cell = self.get_cell(mouse_pos)
 
-        if self.covers_slots(cell) and self.mouse.clicked_slot is not None:
-            slot = self.inventory.slots[int(cell.y)][int(cell.x)]
-            if self.mouse.clicked_slot.item.ID != -1:
-                self.inventory.swap_item(self.mouse.clicked_slot, slot)
-                self.mouse.clicked_slot.is_moving = False
-                self.mouse.clicked_slot = None
+        if mouse_interface is not None:
+            if self.covers_slots(cell) and mouse_interface.mouse.clicked_slot is not None:
+                slot = self.inventory.slots[int(cell.y)][int(cell.x)]
+                if mouse_interface.mouse.clicked_slot.item.ID != -1:
+                    self.inventory.swap_item(slot, mouse_interface.mouse.clicked_slot)
+                    mouse_interface.mouse.clicked_slot.is_moving = False
+                    mouse_interface.mouse.clicked_slot = None
 
     #
     # Вызывается при нажатии на слот
@@ -145,6 +148,8 @@ class Interface:
         mouse_slot = self.mouse.hovered_slot
 
         if self.covers_slots(cell):
+            if self.mouse.clicked_slot is None:
+                MOUSE.interface = self
             slot = self.inventory.slots[int(cell.y)][int(cell.x)]
             slot.mouse_hovered = True
 
@@ -155,6 +160,8 @@ class Interface:
         elif mouse_slot is not None:
             self.mouse.hovered_slot.mouse_hovered = False
             self.mouse.hovered_slot = None
+            if self.mouse.clicked_slot is None:
+                MOUSE.interface = None
 
     #
     # Вызывается при перемещении курсора

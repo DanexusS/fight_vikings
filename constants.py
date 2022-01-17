@@ -4,6 +4,12 @@ from enums import Enum
 from pygame import Vector2
 
 
+class GameMouseData:
+    def __init__(self):
+        self.interface = None
+        self.position = Vector2()
+
+
 """Общие"""
 
 
@@ -13,6 +19,7 @@ BG = '#43485E'
 BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 SIZE_MENU_BTN = Vector2(300, 80)
+MOUSE = GameMouseData()
 
 
 """Игрок"""

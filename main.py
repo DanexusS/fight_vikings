@@ -74,12 +74,16 @@ class MainGame:
                     for interface in player_interfaces:
                         interface.drop_item(event.pos)
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_i:
+                    if event.key == pygame.K_i or event.key == pygame.K_ESCAPE:
                         for interface in player_interfaces:
                             if interface.mouse.hovered_slot is not None:
                                 interface.mouse.hovered_slot.mouse_hovered = False
                             interface.mouse.hovered_slot = None
                         self.main_game()
+
+            # if MOUSE.interface is not None:
+            #     print(MOUSE.interface.TYPE)
+            print(player_interfaces[0].mouse.clicked_slot)
 
             screen.fill(BG_COLOR)
             for interface in player_interfaces:
