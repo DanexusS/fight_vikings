@@ -16,8 +16,8 @@ INFO_FONTS = {
 }
 
 
-size = w, h = 1920, 1080
-screen = pygame.display.set_mode(size)
+# size = w, h = 1920, 1080
+# screen = pygame.display.set_mode(size)
 
 
 class Mouse:
@@ -39,7 +39,7 @@ class Interface:
 
         self.opened = False
 
-    def render_slots(self):
+    def render_slots(self, screen):
         for y in range(self.height):
             for x in range(self.width):
                 cell_position = Vector2((INV_SLOT_SIZE + self.space.x) * x + self.offset.x,
@@ -56,7 +56,7 @@ class Interface:
                 pygame.draw.rect(screen, SLOT_COLORS["Frame"], cell, 1)
 
                 # Отрисовка информации о предмете в слоте
-                self.draw_item_info(slot, cell_position)
+                self.draw_item_info(slot, cell_position, screen)
 
         # Перемещение изображения предмета во временя перетаскивания
         if self.mouse.clicked_slot is not None and self.mouse.clicked_slot.is_moving:
@@ -64,6 +64,7 @@ class Interface:
             slot_image = pygame.transform.scale(image.convert_alpha(), (96, 96))
             rect = slot_image.get_rect(center=self.mouse.position)
             screen.blit(slot_image, rect)
+        # Вывод информации о предмете при наведении на него мышкой
         elif self.mouse.hovered_slot is not None and self.mouse.hovered_slot.item.ID != -1:
             item = self.mouse.hovered_slot.item
             title = INFO_FONTS["Title"].render(item.title, True, SLOT_COLORS["Amount_Text"], SLOT_COLORS["Info_BG"])
@@ -74,22 +75,20 @@ class Interface:
             if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
                 if item.buffs is not None:
                     for buff in item.buffs:
-                        extra_info.append(f"Характеристика '{RUS_ATTRIBUTES[buff.affected_attribute]}' увеличится "
-                                          f"на {buff.value}")
+                        extra_info.append(f"""Характеристика "{RUS_ATTRIBUTES[buff.affected_attribute]}" увеличится """
+                                          f"""на {buff.value}""")
             if item.TYPE == ItemType.Weapon:
                 extra_info.append(f"Урон увеличивается на {item.damage.value}")
 
-            y = 0
-            for info in extra_info:
-                info_text = INFO_FONTS["Description"].render(info, True, SLOT_COLORS["Amount_Text"],
+            for i in range(len(extra_info)):
+                info_text = INFO_FONTS["Description"].render(extra_info[i], True, SLOT_COLORS["Amount_Text"],
                                                              SLOT_COLORS["Info_BG"])
                 screen.blit(info_text, (self.mouse.position.x + 30,
-                                        self.mouse.position.y + 30 * y + 48.5))
-                y += 1
+                                        self.mouse.position.y + 30 * i + 48.5))
 
     #
     @staticmethod
-    def draw_item_info(slot, cell_position):
+    def draw_item_info(slot, cell_position, screen):
         # Отрисовка изображения предмета в слоте
         if not slot.is_moving:
             if slot.ui_display is not None:

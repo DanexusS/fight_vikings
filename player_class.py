@@ -1,8 +1,9 @@
-from math import *
-
-from main_functions import *
-from persons_and_camera import Weapon
 import csv
+
+from math import *
+from main_functions import *
+
+from persons_and_camera import Weapon
 from enums import Enum
 
 
@@ -35,7 +36,7 @@ class PlayerAttributes:
 
 
 class Hero(pygame.sprite.Sprite, PlayerAttributes):
-    def __init__(self, village, village_size, inventory):
+    def __init__(self, village, village_size, inventory, equipment):
         super().__init__(village.player_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         pos = random.choice([(village_size // 4, village_size // 2),
                              (village_size // 4 * 3, village_size // 2),
@@ -57,6 +58,7 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
         self.directions = {(0, -STEP): False, (-STEP, 0): False, (0, STEP): False, (STEP, 0): False}
         self.attributes = PlayerAttributes.init()
         self.inventory = inventory
+        self.equipment_inventory = equipment
         self.is_dmg = False
 
     def damage(self, dmg):

@@ -54,8 +54,9 @@ class MainGame:
         pygame.display.flip()
 
     def inventory_opened(self):
-        interface = Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5))
-        threading.Thread(target=interface.render_slots()).start()
+        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5)),
+                             Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875))]
+        threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
 
         running_inv = True
         while running_inv:
@@ -63,18 +64,26 @@ class MainGame:
                 if event.type == pygame.QUIT:
                     running_inv = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    interface.slot_clicked(event.pos)
+                    for interface in player_interfaces:
+                        interface.slot_clicked(event.pos)
                 elif event.type == pygame.MOUSEMOTION:
-                    interface.slot_hover(event.pos)
-                    interface.moving_item(event.pos)
+                    for interface in player_interfaces:
+                        interface.slot_hover(event.pos)
+                        interface.moving_item(event.pos)
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    interface.drop_item(event.pos)
+                    for interface in player_interfaces:
+                        interface.drop_item(event.pos)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_i:
+                        for interface in player_interfaces:
+                            if interface.mouse.hovered_slot is not None:
+                                interface.mouse.hovered_slot.mouse_hovered = False
+                            interface.mouse.hovered_slot = None
                         self.main_game()
 
             screen.fill(BG_COLOR)
-            interface.render_slots()
+            for interface in player_interfaces:
+                interface.render_slots(screen)
             pygame.display.flip()
 
     def main_game(self):
@@ -147,7 +156,8 @@ class MainGame:
 
                         # Создание объектов
                         self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
-                        self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10, [items_db["Sword"]]))
+                        self.player = Hero(self.village, MAP_SIZE * 2,
+                                           Inventory(60, 10, [items_db["Sword"]]), Inventory(5, 5))
                         self.camera = persons_and_camera.Camera()
 
                         self.main_game()
