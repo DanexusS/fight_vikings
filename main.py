@@ -24,7 +24,7 @@ FONT_LOAD = pygame.font.SysFont('Impact', 60)
 
 # Позиции кнопок в меню
 pos_exit = (width // 2 - SIZE_MENU_BTN.x // 2, height // 2 + 300 - SIZE_MENU_BTN.y // 2)
-pos_play = (width // 2 - SIZE_MENU_BTN.x // 2, height // 2 + 200 - SIZE_MENU_BTN.y // 2)
+pos_play = (pos_exit[0], pos_exit[1] - 100)
 
 # Фон
 screen.fill(BG)
