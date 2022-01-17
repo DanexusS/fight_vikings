@@ -4,9 +4,8 @@ import item_database
 import persons_and_camera
 import village_generation
 
-from inventory_obj import Inventory
 from player_class import Hero
-from interface import Interface
+from interface import *
 from constants import *
 
 
@@ -54,8 +53,10 @@ class MainGame:
         pygame.display.flip()
 
     def inventory_opened(self):
-        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5)),
-                             Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875))]
+        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5),
+                                       Vector2(50, 62.5), InterfaceTypes.Regular),
+                             Interface(self.player.equipment_inventory,
+                                       Vector2(5, 5), Vector2(50, 875), InterfaceTypes.Equipment)]
         threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
 
         running_inv = True

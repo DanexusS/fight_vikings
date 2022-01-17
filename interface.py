@@ -24,7 +24,7 @@ class Mouse:
 
 
 class Interface:
-    def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2):
+    def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2, interface_type):
         self.inventory = inventory
         self.space = space
         self.offset = start_pos
@@ -34,6 +34,7 @@ class Interface:
         self.mouse = Mouse()
 
         self.opened = False
+        self.TYPE = interface_type
 
     def render_slots(self, screen):
         for y in range(self.height):
