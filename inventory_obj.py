@@ -12,7 +12,6 @@ class InventorySlot:
         self.ui_display = item.image
         self.parent = None
         self.mouse_hovered = False
-        self.is_moving = False
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
         self.item = item

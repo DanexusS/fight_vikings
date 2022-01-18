@@ -17,13 +17,6 @@ class InterfaceTypes(Enum):
     Equipment = 1
 
 
-class Mouse:
-    def __init__(self):
-        self.clicked_slot = None
-        self.hovered_slot = None
-        self.position = Vector2()
-
-
 class Interface:
     def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2, interface_type):
         self.inventory = inventory
@@ -32,7 +25,6 @@ class Interface:
 
         self.height = len(self.inventory.slots)
         self.width = len(self.inventory.slots[0])
-        self.mouse = Mouse()
 
         self.opened = False
         self.TYPE = interface_type
@@ -56,18 +48,12 @@ class Interface:
                 # Отрисовка информации о предмете в слоте
                 self.draw_item_info(slot, cell_position, screen)
 
-        # Перемещение изображения предмета во временя перетаскивания
-        if self.mouse.clicked_slot is not None and self.mouse.clicked_slot.is_moving:
-            image = pygame.image.load(self.mouse.clicked_slot.ui_display)
-            slot_image = pygame.transform.scale(image.convert_alpha(), (96, 96))
-            rect = slot_image.get_rect(center=self.mouse.position)
-            screen.blit(slot_image, rect)
         # Вывод информации о предмете при наведении на него мышкой
-        elif self.mouse.hovered_slot is not None and self.mouse.hovered_slot.item.ID != -1:
-            item = self.mouse.hovered_slot.item
+        if not MOUSE.start_drag_slot and MOUSE.slot_hovered_over and MOUSE.slot_hovered_over.item.ID != -1:
+            item = MOUSE.slot_hovered_over.item
             title = INFO_FONTS["Title"].render(item.title, True, SLOT_COLORS["Amount_Text"], SLOT_COLORS["Info_BG"])
 
-            screen.blit(title, (self.mouse.position.x + 15, self.mouse.position.y + 15))
+            screen.blit(title, (MOUSE.position.x + 15, MOUSE.position.y + 15))
 
             extra_info = []
             if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
@@ -81,14 +67,14 @@ class Interface:
             for i in range(len(extra_info)):
                 info_text = INFO_FONTS["Description"].render(extra_info[i], True, SLOT_COLORS["Amount_Text"],
                                                              SLOT_COLORS["Info_BG"])
-                screen.blit(info_text, (self.mouse.position.x + 30,
-                                        self.mouse.position.y + 30 * i + 48.5))
+                screen.blit(info_text, (MOUSE.position.x + 30,
+                                        MOUSE.position.y + 30 * i + 48.5))
 
     #
     @staticmethod
     def draw_item_info(slot, cell_position, screen):
-        # Отрисовка изображения предмета в слоте
-        if not slot.is_moving:
+        if slot != MOUSE.start_drag_slot:
+            # Отрисовка изображения предмета в слоте
             if slot.ui_display is not None:
                 slot_image = pygame.transform.scale(pygame.image.load(slot.ui_display).convert_alpha(),
                                                     (96, 96))
@@ -118,16 +104,16 @@ class Interface:
     #
     # Вызывается при завершении перетаскивания предмета
     def drop_item(self, mouse_pos):
-        mouse_interface = MOUSE.interface
+        mouse_interface = MOUSE.current_interface
         cell = self.get_cell(mouse_pos)
 
         if mouse_interface is not None:
-            if self.covers_slots(cell) and mouse_interface.mouse.clicked_slot is not None:
+            if self.covers_slots(cell) and MOUSE.start_drag_slot is not None:
                 slot = self.inventory.slots[int(cell.y)][int(cell.x)]
-                if mouse_interface.mouse.clicked_slot.item.ID != -1:
-                    self.inventory.swap_item(slot, mouse_interface.mouse.clicked_slot)
-                    mouse_interface.mouse.clicked_slot.is_moving = False
-                    mouse_interface.mouse.clicked_slot = None
+                if MOUSE.start_drag_slot.item.ID != -1:
+                    self.inventory.swap_item(slot, MOUSE.start_drag_slot)
+                    MOUSE.start_drag_slot.is_moving = False
+                    MOUSE.start_drag_slot = None
 
     #
     # Вызывается при нажатии на слот
@@ -137,35 +123,30 @@ class Interface:
         if self.covers_slots(cell):
             slot = self.inventory.slots[int(cell.y)][int(cell.x)]
             if slot.item.ID != -1:
-                self.mouse.clicked_slot = slot
+                MOUSE.start_drag_slot = slot
+
+    def interface_check(self):
+        cell = self.get_cell(MOUSE.position)
+
+        if self.covers_slots(cell):
+            MOUSE.current_interface = self
 
     #
     # Проверка на перекрытие курсором слота
     def mouse_move(self, mouse_pos):
-        self.moving_item(mouse_pos)
-
         cell = self.get_cell(mouse_pos)
-        mouse_slot = self.mouse.hovered_slot
+        mouse_slot = MOUSE.slot_hovered_over
 
         if self.covers_slots(cell):
-            if self.mouse.clicked_slot is None:
-                MOUSE.interface = self
             slot = self.inventory.slots[int(cell.y)][int(cell.x)]
             slot.mouse_hovered = True
 
-            if mouse_slot is not None:
-                self.mouse.hovered_slot.mouse_hovered = mouse_slot == slot
+            if mouse_slot:
+                MOUSE.slot_hovered_over.mouse_hovered = mouse_slot == slot
 
-            self.mouse.hovered_slot = slot
-        elif mouse_slot is not None:
-            self.mouse.hovered_slot.mouse_hovered = False
-            self.mouse.hovered_slot = None
-            if self.mouse.clicked_slot is None:
-                MOUSE.interface = None
-
-    #
-    # Вызывается при перемещении курсора
-    def moving_item(self, mouse_pos):
-        if self.mouse.clicked_slot is not None:
-            self.mouse.clicked_slot.is_moving = True
-        self.mouse.position = Vector2(mouse_pos[0], mouse_pos[1])
+            MOUSE.slot_hovered_over = slot
+        elif mouse_slot:
+            MOUSE.slot_hovered_over.mouse_hovered = False
+            MOUSE.slot_hovered_over = None
+            if not MOUSE.start_drag_slot:
+                MOUSE.current_interface = None

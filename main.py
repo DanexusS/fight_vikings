@@ -28,6 +28,8 @@ pos_play = (pos_exit[0], pos_exit[1] - 100)
 # Фон
 screen.fill(BG)
 
+ATTRIBUTE_FONT = pygame.font.SysFont("Impact", round(INV_SLOT_SIZE / 4))
+
 
 # Игра
 class MainGame:
@@ -58,36 +60,39 @@ class MainGame:
                              Interface(self.player.equipment_inventory,
                                        Vector2(5, 5), Vector2(50, 875), InterfaceTypes.Equipment)]
         threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
-
         running_inv = True
         while running_inv:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running_inv = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    for interface in player_interfaces:
-                        interface.slot_clicked(event.pos)
-                elif event.type == pygame.MOUSEMOTION:
-                    for interface in player_interfaces:
-                        interface.mouse_move(event.pos)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    for interface in player_interfaces:
-                        interface.drop_item(event.pos)
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_i or event.key == pygame.K_ESCAPE:
-                        for interface in player_interfaces:
-                            if interface.mouse.hovered_slot is not None:
-                                interface.mouse.hovered_slot.mouse_hovered = False
-                            interface.mouse.hovered_slot = None
-                        self.main_game()
+                if MOUSE.current_interface:
+                    if event.type == pygame.QUIT:
+                        running_inv = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        MOUSE.current_interface.slot_clicked(event.pos)
+                    elif event.type == pygame.MOUSEMOTION:
+                        MOUSE.current_interface.mouse_move(event.pos)
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        MOUSE.current_interface.drop_item(event.pos)
+                    elif event.type == pygame.KEYUP:
+                        if event.key == pygame.K_i or event.key == pygame.K_ESCAPE:
+                            if MOUSE.slot_hovered_over:
+                                MOUSE.slot_hovered_over.mouse_hovered = False
+                            MOUSE.slot_hovered_over = None
+                            self.main_game()
 
-            # if MOUSE.interface is not None:
-            #     print(MOUSE.interface.TYPE)
-            print(player_interfaces[0].mouse.clicked_slot)
+            MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
             screen.fill(BG_COLOR)
+            # Отрисовка слотов у инвентарей и проверка на перекрытие их мышкой
             for interface in player_interfaces:
+                interface.interface_check()
                 interface.render_slots(screen)
+
+            # Перемещение изображения предмета во временя перетаскивания
+            if MOUSE.start_drag_slot:
+                image = pygame.image.load(MOUSE.start_drag_slot.ui_display)
+                slot_image = pygame.transform.scale(image.convert_alpha(), (96, 96))
+                rect = slot_image.get_rect(center=MOUSE.position)
+                screen.blit(slot_image, rect)
             pygame.display.flip()
 
     def main_game(self):

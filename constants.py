@@ -6,7 +6,9 @@ from pygame import Vector2
 
 class GameMouseData:
     def __init__(self):
-        self.interface = None
+        self.current_interface = None
+        self.start_drag_slot = None
+        self.slot_hovered_over = None
         self.position = Vector2()
 
 
@@ -74,5 +76,9 @@ INV_SLOT_SIZE = 128
 RUS_ATTRIBUTES = {
     Attributes.Move_Speed: "скорость",
     Attributes.Attack_Speed: "скорость атаки",
-    Attributes.Damage: "урон"
+    Attributes.Attack_Radius: "радиус атаки",
+    Attributes.Damage: "урон",
+    Attributes.Health: "здоровье",
+    Attributes.Armor: "броня",
+    Attributes.Stamina: "выносливость"
 }
