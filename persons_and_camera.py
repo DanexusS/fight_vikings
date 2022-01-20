@@ -65,6 +65,7 @@ class Enemy(pygame.sprite.Sprite):
     def check_collide(self, village, posx, posy, move=False):
         if move:
             self.rect = self.rect.move(posx, posy)
+            pygame.display.flip()
         for sprite in village.collide_sprites:
             if pygame.sprite.collide_mask(self, sprite) and sprite != self:
                 self.rect = self.rect.move(-posx, -posy)
@@ -100,34 +101,21 @@ class Enemy(pygame.sprite.Sprite):
             return
         if self.obstacle[0]:
             # Обход препятствия если требуеться
-            if self.obstacle[1] == 'right':
-                self.rect = self.rect.move(move_vectors['right'].x, move_vectors['right'].y)
-                if self.check_collide(village, move_vectors['right'].x, move_vectors['right'].y):
+            self.rect = self.rect.move(move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y)
+            if self.check_collide(village, move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y):
+                if self.obstacle[1] == 'right':
                     self.obstacle[1] = 'left'
-            if self.obstacle[1] == 'left':
-                self.rect = self.rect.move(move_vectors['left'].x, move_vectors['left'].y)
-                if self.check_collide(village, move_vectors['left'].x, move_vectors['left'].y):
+                if self.obstacle[1] == 'left':
                     self.obstacle[1] = 'right'
-            if self.obstacle[1] == 'down':
-                self.rect = self.rect.move(move_vectors['down'].x, move_vectors['down'].y)
-                if self.check_collide(village, move_vectors['down'].x, move_vectors['down'].y):
+                if self.obstacle[1] == 'down':
                     self.obstacle[1] = 'up'
-            if self.obstacle[1] == 'up':
-                self.rect = self.rect.move(move_vectors['up'].x, move_vectors['up'].y)
-                if self.check_collide(village, move_vectors['up'].x, move_vectors['up'].y):
+                if self.obstacle[1] == 'up':
                     self.obstacle[1] = 'down'
-            if (((self.obstacle[1] == 'right' or self.obstacle[1] == 'left') and
-                 not self.check_collide(village, move_vectors['up'].x, move_vectors['up'].y, True) and
-                 not self.check_collide(village, move_vectors['down'].x, move_vectors['down'].y, True)) or
-                ((self.obstacle[1] == 'down' or self.obstacle[1] == 'up') and
-                 not self.check_collide(village, move_vectors['left'].x, move_vectors['left'].y, True) and
-                 not self.check_collide(village, move_vectors['right'].x, move_vectors['right'].y, True))):
-                print('----------------------------',
-                      self.obstacle[1],
-                      not self.check_collide(village, move_vectors['up'].x, move_vectors['up'].y, True),
-                      not self.check_collide(village, move_vectors['down'].x, move_vectors['down'].y, True),
-                      not self.check_collide(village, move_vectors['left'].x, move_vectors['left'].y, True),
-                      not self.check_collide(village, move_vectors['right'].x, move_vectors['right'].y, True))
+            if (not self.check_collide(village, move_vectors['up'].x, move_vectors['up'].y, True) and \
+                    not self.check_collide(village, move_vectors['down'].x, move_vectors['down'].y, True) and
+                    not self.check_collide(village, move_vectors['left'].x, move_vectors['left'].y, True) and
+                    not self.check_collide(village, move_vectors['right'].x, move_vectors['right'].y, True)):
+                self.rect = self.rect.move(move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y)
                 self.obstacle = [False, None]
         else:
             # Ходьба к герою
