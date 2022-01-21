@@ -65,11 +65,12 @@ class Enemy(pygame.sprite.Sprite):
     def check_collide(self, village, posx, posy, move=False):
         if move:
             self.rect = self.rect.move(posx, posy)
-            pygame.display.flip()
         for sprite in village.collide_sprites:
             if pygame.sprite.collide_mask(self, sprite) and sprite != self:
                 self.rect = self.rect.move(-posx, -posy)
                 return sprite
+        if move:
+            self.rect = self.rect.move(-posx, -posy)
         return False
 
     def check_avoidance(self, village, x_move, y_move):
