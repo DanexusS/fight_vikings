@@ -7,7 +7,8 @@ class Weapon(pygame.sprite.Sprite):
     def __init__(self, other):
         super().__init__(other.sword_sprites)
         # Переменные
-        self.image = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'), (PLAYER_SIZE - 10, PLAYER_SIZE - 10)), 180)
+        self.image = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'),
+                                                                    (PLAYER_SIZE - 10, PLAYER_SIZE - 10)), 180)
         self.rect = self.image.get_rect()
 
     def rotate(self):
@@ -90,15 +91,19 @@ class Enemy(pygame.sprite.Sprite):
                       sprite.__class__.__name__ not in ['Enemy', 'Hero']) or
                      ((PLAYER_SIZE + 10) < distance < (PLAYER_SIZE + 10) * 3 and
                       sprite.__class__.__name__ == 'Enemy')):
-                if (self.check_collide(village, self.move_vectors['up'].x, self.move_vectors['up'].y, True) or
-                      self.check_collide(village, self.move_vectors['down'].x, self.move_vectors['down'].y, True)) and \
+                if (self.check_collide(village, self.move_vectors['up'].x, self.move_vectors['up'].y,
+                                       True) or
+                      self.check_collide(village, self.move_vectors['down'].x, self.move_vectors['down'].y,
+                                         True)) and \
                         (PLAYER_CENTER.x - PLAYER_SIZE < self.rect.x < PLAYER_CENTER.x + PLAYER_SIZE):
                     if left_or_right == 1:
                         self.obstacle = [True, 'right']
                     else:
                         self.obstacle = [True, 'left']
-                elif (self.check_collide(village, self.move_vectors['left'].x, self.move_vectors['left'].y, True) or
-                      self.check_collide(village, self.move_vectors['right'].x, self.move_vectors['right'].y, True)) and \
+                elif (self.check_collide(village, self.move_vectors['left'].x, self.move_vectors['left'].y,
+                                         True) or
+                      self.check_collide(village, self.move_vectors['right'].x, self.move_vectors['right'].y,
+                                         True)) and \
                         (PLAYER_CENTER.y - PLAYER_SIZE < self.rect.y < PLAYER_CENTER.y + PLAYER_SIZE):
                     if left_or_right == 1:
                         self.obstacle = [True, 'down']
