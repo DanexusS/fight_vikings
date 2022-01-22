@@ -52,6 +52,8 @@ class Enemy(pygame.sprite.Sprite):
         self.status = 'normal'
         self.is_dmg = False
         self.obstacle = [False, None]
+        self.move_vectors = {'right': Vector2((STEP - 1), 0), 'left': Vector2(-(STEP - 1), 0),
+                             'down': Vector2(0, (STEP - 1)), 'up': Vector2(0, -(STEP - 1))}
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -62,37 +64,50 @@ class Enemy(pygame.sprite.Sprite):
                 self.hp = 0
         return self.status
 
-    def check_collide(self, village, posx, posy, move=False):
+    def check_collide(self, village, posx, posy, move=False, only_house=False):
+        c = 1
+        distance = math.sqrt((PLAYER_CENTER.x - self.rect.x) ** 2 + (PLAYER_CENTER.y - self.rect.y) ** 2)
         if move:
-            self.rect = self.rect.move(posx, posy)
+            self.rect = self.rect.move(posx * c, posy * c)
         for sprite in village.collide_sprites:
-            if pygame.sprite.collide_mask(self, sprite) and sprite != self:
-                self.rect = self.rect.move(-posx, -posy)
+            if pygame.sprite.collide_mask(self, sprite) and \
+                    (sprite != self and
+                     (not only_house or (sprite.__class__.__name__ not in ['Enemy', 'Hero'] and
+                                         distance > (PLAYER_SIZE + 10) * 3) or distance < (PLAYER_SIZE + 10) * 3)):
+                self.rect = self.rect.move(-posx * c, -posy * c)
                 return sprite
         if move:
-            self.rect = self.rect.move(-posx, -posy)
+            self.rect = self.rect.move(-posx * c, -posy * c)
         return False
 
     def check_avoidance(self, village, x_move, y_move):
         sprite = self.check_collide(village, x_move, y_move)
         if sprite:
             left_or_right = random.randint(0, 1)
-            if not self.obstacle[0] and sprite.__class__.__name__ not in ['Hero', 'Enemy']:
-                if PLAYER_CENTER.x - PLAYER_SIZE < self.rect.x < PLAYER_CENTER.x + PLAYER_SIZE:
+            distance = math.sqrt((PLAYER_CENTER.x - self.rect.x) ** 2 + (PLAYER_CENTER.y - self.rect.y) ** 2)
+            if not self.obstacle[0] and \
+                    ((distance > (PLAYER_SIZE + 10) * 3 and
+                      sprite.__class__.__name__ not in ['Enemy', 'Hero']) or
+                     ((PLAYER_SIZE + 10) < distance < (PLAYER_SIZE + 10) * 3 and
+                      sprite.__class__.__name__ == 'Enemy')):
+                if (self.check_collide(village, self.move_vectors['up'].x, self.move_vectors['up'].y, True) or
+                      self.check_collide(village, self.move_vectors['down'].x, self.move_vectors['down'].y, True)) and \
+                        (PLAYER_CENTER.x - PLAYER_SIZE < self.rect.x < PLAYER_CENTER.x + PLAYER_SIZE):
                     if left_or_right == 1:
                         self.obstacle = [True, 'right']
                     else:
                         self.obstacle = [True, 'left']
-                elif PLAYER_CENTER.y - PLAYER_SIZE < self.rect.y < PLAYER_CENTER.y + PLAYER_SIZE:
+                elif (self.check_collide(village, self.move_vectors['left'].x, self.move_vectors['left'].y, True) or
+                      self.check_collide(village, self.move_vectors['right'].x, self.move_vectors['right'].y, True)) and \
+                        (PLAYER_CENTER.y - PLAYER_SIZE < self.rect.y < PLAYER_CENTER.y + PLAYER_SIZE):
                     if left_or_right == 1:
                         self.obstacle = [True, 'down']
                     else:
                         self.obstacle = [True, 'up']
 
     def update(self, village):
-        move_vectors = {'right': Vector2((STEP - 1), 0), 'left': Vector2(-(STEP - 1), 0),
-                        'down': Vector2(0, (STEP - 1)), 'up': Vector2(0, -(STEP - 1))}
-        if 100 < self.rect.x < WIDTH - 100 and 50 < self.rect.y < HEIGHT - 50:
+        distance = math.sqrt((PLAYER_CENTER.x - self.rect.x) ** 2 + (PLAYER_CENTER.y - self.rect.y) ** 2)
+        if distance < 500:
             x = PLAYER_CENTER.x
             y = PLAYER_CENTER.y
         elif self.rect.x != self.pos[0] or self.rect.y != self.pos[1]:
@@ -102,8 +117,9 @@ class Enemy(pygame.sprite.Sprite):
             return
         if self.obstacle[0]:
             # Обход препятствия если требуеться
-            self.rect = self.rect.move(move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y)
-            if self.check_collide(village, move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y):
+            self.rect = self.rect.move(self.move_vectors[self.obstacle[1]].x, self.move_vectors[self.obstacle[1]].y)
+            if self.check_collide(village, self.move_vectors[self.obstacle[1]].x,
+                                  self.move_vectors[self.obstacle[1]].y):
                 if self.obstacle[1] == 'right':
                     self.obstacle[1] = 'left'
                 if self.obstacle[1] == 'left':
@@ -112,26 +128,32 @@ class Enemy(pygame.sprite.Sprite):
                     self.obstacle[1] = 'up'
                 if self.obstacle[1] == 'up':
                     self.obstacle[1] = 'down'
-            if (not self.check_collide(village, move_vectors['up'].x, move_vectors['up'].y, True) and \
-                    not self.check_collide(village, move_vectors['down'].x, move_vectors['down'].y, True) and
-                    not self.check_collide(village, move_vectors['left'].x, move_vectors['left'].y, True) and
-                    not self.check_collide(village, move_vectors['right'].x, move_vectors['right'].y, True)):
-                self.rect = self.rect.move(move_vectors[self.obstacle[1]].x, move_vectors[self.obstacle[1]].y)
+            if (not self.check_collide(village, self.move_vectors['up'].x, self.move_vectors['up'].y,
+                                       True, True) and \
+                    not self.check_collide(village, self.move_vectors['down'].x, self.move_vectors['down'].y,
+                                           True, True) and
+                    not self.check_collide(village, self.move_vectors['left'].x, self.move_vectors['left'].y,
+                                           True, True) and
+                    not self.check_collide(village, self.move_vectors['right'].x, self.move_vectors['right'].y,
+                                           True, True)):
+                self.rect = self.rect.move(self.move_vectors[self.obstacle[1]].x, self.move_vectors[self.obstacle[1]].y)
+                self.check_collide(village, self.move_vectors[self.obstacle[1]].x,
+                                   self.move_vectors[self.obstacle[1]].y)
                 self.obstacle = [False, None]
         else:
             # Ходьба к герою
             if self.rect.x <= x:
-                self.rect = self.rect.move(move_vectors['right'].x, move_vectors['right'].y)
-                self.check_avoidance(village, move_vectors['right'].x, move_vectors['right'].y)
+                self.rect = self.rect.move(self.move_vectors['right'].x, self.move_vectors['right'].y)
+                self.check_avoidance(village, self.move_vectors['right'].x, self.move_vectors['right'].y)
             if self.rect.x >= x:
-                self.rect = self.rect.move(move_vectors['left'].x, move_vectors['left'].y)
-                self.check_avoidance(village, move_vectors['left'].x, move_vectors['left'].y)
+                self.rect = self.rect.move(self.move_vectors['left'].x, self.move_vectors['left'].y)
+                self.check_avoidance(village, self.move_vectors['left'].x, self.move_vectors['left'].y)
             if self.rect.y <= y:
-                self.rect = self.rect.move(move_vectors['down'].x, move_vectors['down'].y)
-                self.check_avoidance(village, move_vectors['down'].x, move_vectors['down'].y)
+                self.rect = self.rect.move(self.move_vectors['down'].x, self.move_vectors['down'].y)
+                self.check_avoidance(village, self.move_vectors['down'].x, self.move_vectors['down'].y)
             if self.rect.y >= y:
-                self.rect = self.rect.move(move_vectors['up'].x, move_vectors['up'].y)
-                self.check_avoidance(village, move_vectors['up'].x, move_vectors['up'].y)
+                self.rect = self.rect.move(self.move_vectors['up'].x, self.move_vectors['up'].y)
+                self.check_avoidance(village, self.move_vectors['up'].x, self.move_vectors['up'].y)
 
 
 class Camera:
