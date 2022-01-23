@@ -86,60 +86,24 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             if collide:
                 self.rect = self.rect.move(-x, -y)
 
-    @staticmethod
-    def search_angle():
-        # Переменные
-        mouse = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-        # Формула
-        change = mouse - PLAYER_CENTER
-        # Формула
-        sqrt1 = sqrt((change.x + 1) * (change.x + 1) + (change.y + 1) * (change.y + 1))
-        angle = -round(90 - acos(cos((change.y * 10) / ((sqrt1 * 10) + 1))) * 100)
-        # Выравнивание градуса угла
-        if mouse.y >= PLAYER_CENTER.y:
-            if mouse.x >= PLAYER_CENTER.x:
-                angle = 10 - angle
-                angle_move = MIN_COE * abs(angle // STEP_ANGLE)
-            else:
-                angle = angle - 10
-                angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
-        else:
-            if mouse.x >= PLAYER_CENTER.x:
-                angle -= 190
-                angle_move = MAX_COE - (MIN_COE * abs(angle // STEP_ANGLE))
-            else:
-                angle = 190 - angle
-                angle_move = MIN_COE * abs(angle // STEP_ANGLE)
-
-        return [angle, angle_move]
-
-    def step_and_draw_attack(self, size_step_attack):
-        radius = 45
-        # Отрисовка
-        self.weapon.image = pygame.transform.rotate(self.weapon.image, self.angle_attack_range)
-        self.weapon.rect = self.weapon.image.get_rect()
-        self.weapon.rect.x = PLAYER_CENTER.x + radius * sin(self.angle_attack_move)
-        self.weapon.rect.y = PLAYER_CENTER.y + radius * cos(self.angle_attack_move)
-        # Шаг
-        self.angle_attack_range -= STEP_ANGLE * size_step_attack
-        self.angle_attack_move -= MIN_COE * size_step_attack
-        self.count_attack -= 1
-
     def attack(self, village):
         # Очистка
         for sword in village.sword_sprites:
             village.sword_sprites.remove(sword)
-        self.weapon = Weapon(village)
+        self.weapon = Weapon(village, 'sword')
         # Обычная атака
         if self.is_attack[0]:
             size_step_attack = 8
             # Начало цикла атаки
             if self.count_attack == -1:
-                self.angle_attack_range, self.angle_attack_move = self.search_angle()[0] + 40, self.search_angle()[
-                    1] + MIN_COE * 40
+                self.angle_attack_range, self.angle_attack_move = \
+                    search_angle(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
+                                 Vector2(self.rect.x, self.rect.y))[0] + 40, \
+                    search_angle(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
+                                 Vector2(self.rect.x, self.rect.y))[1] + MIN_COE * 40
                 self.count_attack = 10
             # Отрисовка и шаг
-            self.step_and_draw_attack(size_step_attack)
+            step_and_draw_attack(self, size_step_attack)
             # Атака                                                               \/ временно
             self.weapon.attack(self.attributes[Attributes.Damage].current_value + 13, village)
             # Конец цикла атаки
@@ -153,10 +117,12 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             size_step_attack = 12
             # Начало цикла атаки
             if self.count_attack == -1:
-                self.angle_attack_range, self.angle_attack_move = self.search_angle()
+                self.angle_attack_range, self.angle_attack_move = \
+                    search_angle(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
+                                 Vector2(self.rect.x, self.rect.y))
                 self.count_attack = 360 // size_step_attack
             # Отрисовка и шаг
-            self.step_and_draw_attack(size_step_attack)
+            step_and_draw_attack(self, size_step_attack)
             # Атака
             self.weapon.attack(self.attributes[Attributes.Damage].current_value // 2, village)
             # Конец цикла атаки
