@@ -4,10 +4,10 @@ from main_functions import *
 
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, other):
+    def __init__(self, other, name_weapon):
         super().__init__(other.sword_sprites)
         # Переменные
-        self.image = pygame.transform.rotate(pygame.transform.scale(load_image('sword.png'),
+        self.image = pygame.transform.rotate(pygame.transform.scale(load_image(f"{name_weapon}.png"),
                                                                     (PLAYER_SIZE - 10, PLAYER_SIZE - 10)), 180)
         self.rect = self.image.get_rect()
 
@@ -55,6 +55,11 @@ class Enemy(pygame.sprite.Sprite):
         self.obstacle = [False, None]
         self.move_vectors = {'right': Vector2((STEP - 1), 0), 'left': Vector2(-(STEP - 1), 0),
                              'down': Vector2(0, (STEP - 1)), 'up': Vector2(0, -(STEP - 1))}
+        # Переменные, атака
+        self.is_attack = False
+        self.angle_attack_range = None
+        self.angle_attack_move = None
+        self.count_attack = -1
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -64,6 +69,31 @@ class Enemy(pygame.sprite.Sprite):
                 self.status = 'destroyed'
                 self.hp = 0
         return self.status
+
+    def attack(self, village):
+        # Очистка
+        for sword in village.sword_sprites:
+            village.sword_sprites.remove(sword)
+        self.weapon = Weapon(village, 'sword')
+        # Обычная атака
+        if self.is_attack:
+            size_step_attack = 8
+            # Начало цикла атаки
+            if self.count_attack == -1:
+                self.angle_attack_range, self.angle_attack_move = \
+                    search_angle(Vector2(self.rect.x, self.rect.y), PLAYER_CENTER)[0] + 40, \
+                    search_angle(Vector2(self.rect.x, self.rect.y), PLAYER_CENTER)[1] + MIN_COE * 40
+                self.count_attack = 10
+            # Отрисовка и шаг
+            step_and_draw_attack(self, size_step_attack)
+            # Атака
+            self.weapon.attack(10, village)
+            # Конец цикла атаки
+            if self.count_attack == 0:
+                self.count_attack = -1
+                self.is_attack = False
+                for sprite in village.attack_sprites:
+                    sprite.is_dmg = False
 
     def check_collide(self, village, posx, posy, move=False, only_house=False):
         c = 1
