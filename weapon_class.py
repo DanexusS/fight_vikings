@@ -34,4 +34,3 @@ class Weapon(pygame.sprite.Sprite):
         for sprite in other.collide_sprites:
             if sprite not in objs_collide:
                 sprite.is_dmg = False
-
