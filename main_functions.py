@@ -9,7 +9,7 @@ def load_image(name):
 
 
 def size_img(name, num=1):
-    return pygame.transform.scale(load_image(name), (CELL_SIZE * num, CELL_SIZE * num))
+    return pygame.transform.scale(load_image(name), (GAME_CELL_SIZE * num, GAME_CELL_SIZE * num))
 
 
 def step_and_draw_attack(creature, size_step_attack):

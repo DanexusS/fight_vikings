@@ -81,6 +81,9 @@ class MainGame:
                                        InterfaceTypes.Regular),
                              Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875),
                                        InterfaceTypes.Equipment, allowed_types)]
+        for slot in player_interfaces[0].inventory.slots[0]:
+            slot.after_update_funcs = self.player.apply_modifiers(slot.item)
+            
         threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
         running_inv = True
         while running_inv:

@@ -12,11 +12,16 @@ class InventorySlot:
         self.ui_display = item.image
         self.parent = None
         self.mouse_hovered = False
+        self.after_update_funcs = []
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
         self.item = item
         self.amount = amount
         self.ui_display = item.image
+
+        if self.after_update_funcs:
+            for func in self.after_update_funcs:
+                func()
 
     def add_amount(self, amount: int):
         self.update_slot(self.item, self.amount + amount)
@@ -35,12 +40,9 @@ class Inventory:
         self.slots = [[InventorySlot(AbstractItem(), 0) for __ in range(width)]
                       for _ in range(height)]
 
-        if default_items is not None:
+        if default_items:
             for item in default_items:
                 self.add_item(item)
-
-    def clear(self):
-        self.slots = []
 
     def empty_slot_count(self) -> int:
         counter = 0

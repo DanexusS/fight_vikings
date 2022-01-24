@@ -1,3 +1,14 @@
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
 from inventory_obj import *
 from constants import *
 
@@ -29,12 +40,14 @@ class Interface:
         if allowed_types:
             if self.height == 1 and self.width == len(allowed_types):
                 for i in range(self.width):
-                    self.inventory.slots[0][i].allowed_types = allowed_types[i]
+                    self.inventory.slots[0][i].allowed_types = [allowed_types[i]]
 
         self.opened = False
         self.TYPE = interface_type
 
     def render_slots(self, screen):
+        types_row = ["sword", "helmet", "armor", "pants", "boots"] if self.height == 1 else []
+
         for y in range(self.height):
             for x in range(self.width):
                 cell_position = Vector2((INV_SLOT_SIZE + self.space.x) * x + self.offset.x,
@@ -42,13 +55,13 @@ class Interface:
                 cell = pygame.Rect(cell_position.x, cell_position.y, INV_SLOT_SIZE, INV_SLOT_SIZE)
                 slot = self.inventory.slots[y][x]
 
-                """Отрисовка элементов слота и связанных с ним элементов"""
-                # Отрисовка фона
+                # Отрисовка элементов слота и связанных с ним элементов
+                # # Отрисовка фона
                 if slot.mouse_hovered:
                     pygame.draw.rect(screen, SLOT_COLORS["Hovered_BG"], cell, 0)
-                # Отрисовка изображения для слотов с ограничениями по типам
+                # # Отрисовка изображения для слотов с ограничениями по типам
                 if slot.item.ID == -1 and slot.allowed_types:
-                    slot_image = pygame.transform.scale(pygame.image.load(f"images/ui_helmet.png").convert_alpha(),
+                    slot_image = pygame.transform.scale(pygame.image.load(f"images/ui_{types_row[x]}.png").convert_alpha(),
                                                         (96, 96))
                     rect = slot_image.get_rect(center=(cell_position.x + INV_SLOT_SIZE // 2,
                                                        cell_position.y + INV_SLOT_SIZE // 2))
@@ -124,6 +137,7 @@ class Interface:
                 slot = self.inventory.slots[int(cell.y)][int(cell.x)]
                 if MOUSE.start_drag_slot.item.ID != -1:
                     self.inventory.swap_item(slot, MOUSE.start_drag_slot)
+                    
                     MOUSE.start_drag_slot.is_moving = False
                     MOUSE.start_drag_slot = None
 

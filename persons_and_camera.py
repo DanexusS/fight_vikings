@@ -10,8 +10,8 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(load_image('enemy.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = int(pos[0]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
-        self.rect.y = int(pos[1]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
+        self.rect.x = int(pos[0]) + GAME_CELL_SIZE // 2 - PLAYER_SIZE // 2
+        self.rect.y = int(pos[1]) + GAME_CELL_SIZE // 2 - PLAYER_SIZE // 2
 
         # Переменные, прочие
         self.pos = [self.rect.x, self.rect.y]

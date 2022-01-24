@@ -1,7 +1,16 @@
-import csv
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+from items import ItemType
 from main_functions import *
 
+from csv import DictReader
 from weapon_class import Weapon
 from enums import Enum
 
@@ -25,7 +34,7 @@ class PlayerAttributes:
     def init():
         attributes = {}
         csv_file = open("hero_stats.csv", encoding="utf8", newline="")
-        reader = list(csv.DictReader(csv_file, fieldnames=["name", "value"], delimiter=";"))[1:]
+        reader = list(DictReader(csv_file, fieldnames=["name", "value"], delimiter=";"))[1:]
 
         for row in reader:
             attributes[Attributes.from_name(row["name"])] = AttributeValue(float(row["value"]),
@@ -47,8 +56,8 @@ class Hero(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = int(pos[0]) * CELL_SIZE
-        self.rect.y = int(pos[1]) * CELL_SIZE
+        self.rect.x = int(pos[0]) * GAME_CELL_SIZE
+        self.rect.y = int(pos[1]) * GAME_CELL_SIZE
 
         # Переменные, атака
         self.is_attack = [False, False]
@@ -60,14 +69,37 @@ class Hero(pygame.sprite.Sprite):
         self.inventory = inventory
         self.equipment_inventory = equipment
 
+        # self.player_equipment = {}
+        # i = 0
+        # for item in ["sword", "helmet", "armor", "pants", "boots"]:
+        #     slot = self.equipment_inventory.slots[0][i]
+        #     if slot.item.ID != -1:
+        #         self.player_equipment[item] = slot
+        #     else:
+        #         self.player_equipment[item] = None
+        #     i += 1
+        
+        # self.apply_modifiers()
+
+        for slot in self.equipment_inventory.slots[0]:
+            self.apply_modifiers(slot.item)
+
         # Прочие переменные
         self.state = PlayerStates.Normal
         self.directions = {(0, -STEP): False, (-STEP, 0): False,
                            (0, STEP): False, (STEP, 0): False}
         self.is_dmg = False
 
+    def apply_modifiers(self, item):
+        if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
+            for buff in item.buffs:
+                self.attributes[buff.affected_attribute].current_value += buff.value
+            if item.TYPE == ItemType.Weapon:
+                self.attributes[Attributes.Damage].current_value += item.damage.value
+
     def damage(self, dmg):
         if self.state == PlayerStates.Normal:
+            print(10)
             self.is_dmg = True
             self.attributes[Attributes.Health].current_value -= dmg
             if self.attributes[Attributes.Health].current_value < 1:
@@ -109,8 +141,8 @@ class Hero(pygame.sprite.Sprite):
                 self.count_attack = 10
             # Отрисовка и шаг
             step_and_draw_attack(self, size_step_attack)
-            # Атака                                                               \/ временно
-            self.weapon.attack(self.attributes[Attributes.Damage].current_value + 13, village)
+            # Атака
+            self.weapon.attack(self.attributes[Attributes.Damage].current_value, village)
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1

@@ -37,14 +37,14 @@ class TownHall(pygame.sprite.Sprite):
         self.image = size_img(f"townhall{self.angle}.png", 3)
         self.mask = pygame.mask.from_surface(size_img(f"mask_townhall{self.angle}.png", 3))
         if self.angle == 0:
-            y -= CELL_SIZE * 0.2
+            y -= GAME_CELL_SIZE * 0.2
         elif self.angle == 1:
-            x -= CELL_SIZE
-            y -= CELL_SIZE * 0.2
+            x -= GAME_CELL_SIZE
+            y -= GAME_CELL_SIZE * 0.2
         elif self.angle == 2:
-            y -= CELL_SIZE * 2
+            y -= GAME_CELL_SIZE * 2
         elif self.angle == 3:
-            y -= CELL_SIZE
+            y -= GAME_CELL_SIZE
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -96,9 +96,9 @@ class Village:
         # Переменные поля и клеток
         self.width = width
         self.height = height
-        self.cell_size = CELL_SIZE
-        self.left = EMPTY_N * CELL_SIZE
-        self.top = EMPTY_N * CELL_SIZE
+        self.cell_size = GAME_CELL_SIZE
+        self.left = EMPTY_N * GAME_CELL_SIZE
+        self.top = EMPTY_N * GAME_CELL_SIZE
 
         # Общие группы
         self.all_sprites = pygame.sprite.Group()
@@ -130,7 +130,7 @@ class Village:
         # Генерация
         self.generation()
 
-    def set_view(self, left, top, cell_size=CELL_SIZE):
+    def set_view(self, left, top, cell_size=GAME_CELL_SIZE):
         # Установка новых значений
         self.left = left
         self.top = top
@@ -231,10 +231,10 @@ class Village:
                         # Вычисляем всё кроме центра
                         if i != 4:
                             if self.board[coord[0]][coord[1]].__class__.__name__ == 'Grass':
-                                around_coords = [self.board[coord[0] - 1][f"{x - CELL_SIZE} {y - CELL_SIZE}"], self.board[coord[0]][f"{x - CELL_SIZE} {y}"],
-                                                 self.board[coord[0] - 1][f"{x} {y - CELL_SIZE}"], self.board[coord[0] + 1][f"{x - CELL_SIZE} {y + CELL_SIZE}"],
-                                                 self.board[coord[0] + 1][f"{x + CELL_SIZE} {y + CELL_SIZE}"], self.board[coord[0]][f"{x + CELL_SIZE} {y}"],
-                                                 self.board[coord[0] + 1][f"{x} {y + CELL_SIZE}"], self.board[coord[0] - 1][f"{x + CELL_SIZE} {y - CELL_SIZE}"]]
+                                around_coords = [self.board[coord[0] - 1][f"{x - GAME_CELL_SIZE} {y - GAME_CELL_SIZE}"], self.board[coord[0]][f"{x - GAME_CELL_SIZE} {y}"],
+                                                 self.board[coord[0] - 1][f"{x} {y - GAME_CELL_SIZE}"], self.board[coord[0] + 1][f"{x - GAME_CELL_SIZE} {y + GAME_CELL_SIZE}"],
+                                                 self.board[coord[0] + 1][f"{x + GAME_CELL_SIZE} {y + GAME_CELL_SIZE}"], self.board[coord[0]][f"{x + GAME_CELL_SIZE} {y}"],
+                                                 self.board[coord[0] + 1][f"{x} {y + GAME_CELL_SIZE}"], self.board[coord[0] - 1][f"{x + GAME_CELL_SIZE} {y - GAME_CELL_SIZE}"]]
                                 for around_coord in around_coords:
                                     if around_coord.__class__.__name__ == 'Road':
                                         count_road += 1
@@ -251,11 +251,11 @@ class Village:
                     coords_txt = list(map(int, coords_square[center][1].split()))
                     # Проверка, что ратуша не перекрывает не одну из дорог
                     if ((x_or_y == 'y' and \
-                            (self.board[coords_square[center][0] + num][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * num}"].__class__.__name__ != 'Road' and
-                             self.board[coords_square[center][0] + (num // 3 * 4)][f"{coords_txt[0]} {coords_txt[1] + CELL_SIZE * (num // 3 * 4)}"].__class__.__name__ != 'Road') or
+                            (self.board[coords_square[center][0] + num][f"{coords_txt[0]} {coords_txt[1] + GAME_CELL_SIZE * num}"].__class__.__name__ != 'Road' and
+                             self.board[coords_square[center][0] + (num // 3 * 4)][f"{coords_txt[0]} {coords_txt[1] + GAME_CELL_SIZE * (num // 3 * 4)}"].__class__.__name__ != 'Road') or
                             (x_or_y == 'x' and
-                              self.board[coords_square[center][0]][f"{coords_txt[0] + CELL_SIZE * num} {coords_txt[1]}"].__class__.__name__ != 'Road' and
-                              self.board[coords_square[center][0]][f"{coords_txt[0] + CELL_SIZE * (num // 3 * 4)} {coords_txt[1]}"].__class__.__name__ != 'Road'))):
+                              self.board[coords_square[center][0]][f"{coords_txt[0] + GAME_CELL_SIZE * num} {coords_txt[1]}"].__class__.__name__ != 'Road' and
+                              self.board[coords_square[center][0]][f"{coords_txt[0] + GAME_CELL_SIZE * (num // 3 * 4)} {coords_txt[1]}"].__class__.__name__ != 'Road'))):
                         break
                 # Заполнение клеток ратуши
                 spawn_town_hall = True
@@ -264,12 +264,12 @@ class Village:
                     coords_txt = list(map(int, coord[1].split()))
                     if x_or_y == 'x':
                         coord_i = coord[0]
-                        coord_x = coords_txt[0] + CELL_SIZE * num
+                        coord_x = coords_txt[0] + GAME_CELL_SIZE * num
                         coord_y = coords_txt[1]
                     if x_or_y == 'y':
                         coord_i = coord[0] + num
                         coord_x = coords_txt[0]
-                        coord_y = coords_txt[1] + CELL_SIZE * num
+                        coord_y = coords_txt[1] + GAME_CELL_SIZE * num
                     # Если мы впритык к площади ставим дорогу, иначе ставим ратушу
                     if (x_or_y == 'x' and num == 3 and coords_txt[0] == int(coords_square[0][1].split()[0])) or \
                             ((x_or_y == 'x' and num == -3 and coords_txt[0] == int(coords_square[2][1].split()[0])) or
@@ -295,17 +295,17 @@ class Village:
                 iy = coords_square[center][0]
                 # Вычисление координат /\ \/
                 if x_or_y == 'x':
-                    x += CELL_SIZE * num
+                    x += GAME_CELL_SIZE * num
                 if x_or_y == 'y':
                     iy += num
-                    y += CELL_SIZE * num
+                    y += GAME_CELL_SIZE * num
                 for i in range(-2, 3):
                     for j in range(-2, 3):
                         # Заменяем на траву если тут стоит дом
-                        if self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].__class__.__name__ == 'House':
-                            self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"].kill()
-                            self.board[iy + i][f"{x + CELL_SIZE * j} {y + CELL_SIZE * i}"] = Grass(self, (
-                            x + CELL_SIZE * j, y + CELL_SIZE * i))
+                        if self.board[iy + i][f"{x + GAME_CELL_SIZE * j} {y + GAME_CELL_SIZE * i}"].__class__.__name__ == 'House':
+                            self.board[iy + i][f"{x + GAME_CELL_SIZE * j} {y + GAME_CELL_SIZE * i}"].kill()
+                            self.board[iy + i][f"{x + GAME_CELL_SIZE * j} {y + GAME_CELL_SIZE * i}"] = Grass(self, (
+                            x + GAME_CELL_SIZE * j, y + GAME_CELL_SIZE * i))
                 # Добавление ратуши, сейчас для того что бы перекрыть всё остальное
                 self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3])
                 # Если всё сработало - выходим из цикла
