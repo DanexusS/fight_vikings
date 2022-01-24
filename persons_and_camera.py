@@ -1,15 +1,18 @@
 from main_functions import *
+from weapon_class import Weapon
 
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, village, pos):
         super().__init__(village.enemies_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
+
         # Переменные, основные
         self.image = pygame.transform.scale(load_image('enemy.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
         self.rect.y = int(pos[1]) + CELL_SIZE // 2 - PLAYER_SIZE // 2
+
         # Переменные, прочие
         self.pos = [self.rect.x, self.rect.y]
         self.hp = 80
@@ -18,6 +21,7 @@ class Enemy(pygame.sprite.Sprite):
         self.obstacle = [False, None]
         self.move_vectors = {'right': Vector2((STEP - 1), 0), 'left': Vector2(-(STEP - 1), 0),
                              'down': Vector2(0, (STEP - 1)), 'up': Vector2(0, -(STEP - 1))}
+
         # Переменные, атака
         self.is_attack = False
         self.angle_attack_range = None

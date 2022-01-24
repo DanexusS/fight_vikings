@@ -1,3 +1,14 @@
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
 import sys
 import threading
 import item_database
@@ -33,6 +44,11 @@ ATTRIBUTE_FONT = pygame.font.SysFont("Impact", round(INV_SLOT_SIZE / 4))
 
 # Игра
 class MainGame:
+    def __init__(self):
+        self.player = None
+        self.village = None
+        self.camera = None
+
     @staticmethod
     def draw_menu():
         # Кнопка выход
@@ -55,13 +71,20 @@ class MainGame:
         pygame.display.flip()
 
     def inventory_opened(self):
-        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5),
-                                       Vector2(50, 62.5), InterfaceTypes.Regular),
-                             Interface(self.player.equipment_inventory,
-                                       Vector2(5, 5), Vector2(50, 875), InterfaceTypes.Equipment)]
+        # Типы предметов, которые можно класть в слоты снаряжения
+        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
+                         ItemType.Equipment, ItemType.Equipment]
+        # Инициализация интерфейсов в списке
+        # # Первый интерфейс - это сам инвентарь
+        # # Второй - инвентарь снаряжения
+        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
+                                       InterfaceTypes.Regular),
+                             Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875),
+                                       InterfaceTypes.Equipment, allowed_types)]
         threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
         running_inv = True
         while running_inv:
+            # Основные события, нужные для работы инвенторя
             for event in pygame.event.get():
                 if MOUSE.current_interface:
                     if event.type == pygame.QUIT:
@@ -87,11 +110,13 @@ class MainGame:
                 interface.interface_check()
                 interface.render_slots(screen)
 
-            x = 0
-            for k, v in self.player.attributes.items():
-                text = ATTRIBUTE_FONT.render(f"{RUS_ATTRIBUTES[k].capitalize()} -> {v.current_value}", True, BG_BTN)
-                screen.blit(text, (1425, x * 35 + 52.5))
-                x += 1
+            # Отображение всех характеристик героя
+            y = 0
+            for key, value in self.player.attributes.items():
+                text = ATTRIBUTE_FONT.render(f"{RUS_ATTRIBUTES[key].capitalize()} -> {value.current_value}",
+                                             True, BG_BTN)
+                screen.blit(text, (1425, y * 35 + 52.5))
+                y += 1
 
             # Перемещение изображения предмета во временя перетаскивания
             if MOUSE.start_drag_slot:
@@ -112,12 +137,14 @@ class MainGame:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
-                        self.menu_opened()
+                        self.draw_main_menu()
                     if event.key == pygame.K_i:
                         screen.fill(BG_COLOR)
                         self.inventory_opened()
 
                 self.player.update(event)
+
+            MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
             # Ходьба героя
             for direction in self.player.directions.items():
@@ -149,7 +176,7 @@ class MainGame:
 
         return None
 
-    def menu_opened(self):
+    def draw_main_menu(self):
         # Создание объектов
         threading.Thread(target=self.draw_menu).start()
 
@@ -159,8 +186,8 @@ class MainGame:
                 if event.type == pygame.QUIT:
                     running_menu = False
                 if event.type == pygame.MOUSEBUTTONUP:
-                    mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-                    button = self.button_hover(mouse_pos)
+                    MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                    button = self.button_hover(MOUSE.position)
 
                     if button == "Exit":
                         sys.exit()
@@ -182,4 +209,4 @@ class MainGame:
 # Запуск игры
 if __name__ == '__main__':
     game = MainGame()
-    game.menu_opened()
+    game.draw_main_menu()

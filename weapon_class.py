@@ -11,7 +11,6 @@ class Weapon(pygame.sprite.Sprite):
 
     def rotate(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-
         rel_x, rel_y = mouse_x - self.rect.x, mouse_y - self.rect.y
         angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
         self.image = pygame.transform.rotate(self.image, int(angle))

@@ -18,13 +18,18 @@ class InterfaceTypes(Enum):
 
 
 class Interface:
-    def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2, interface_type):
+    def __init__(self, inventory: Inventory, space: Vector2, start_pos: Vector2, interface_type, allowed_types=None):
         self.inventory = inventory
         self.space = space
         self.offset = start_pos
 
         self.height = len(self.inventory.slots)
         self.width = len(self.inventory.slots[0])
+
+        if allowed_types:
+            if self.height == 1 and self.width == len(allowed_types):
+                for i in range(self.width):
+                    self.inventory.slots[0][i].allowed_types = allowed_types[i]
 
         self.opened = False
         self.TYPE = interface_type
@@ -41,6 +46,13 @@ class Interface:
                 # Отрисовка фона
                 if slot.mouse_hovered:
                     pygame.draw.rect(screen, SLOT_COLORS["Hovered_BG"], cell, 0)
+                # Отрисовка изображения для слотов с ограничениями по типам
+                if slot.item.ID == -1 and slot.allowed_types:
+                    slot_image = pygame.transform.scale(pygame.image.load(f"images/ui_helmet.png").convert_alpha(),
+                                                        (96, 96))
+                    rect = slot_image.get_rect(center=(cell_position.x + INV_SLOT_SIZE // 2,
+                                                       cell_position.y + INV_SLOT_SIZE // 2))
+                    screen.blit(slot_image, rect)
 
                 # Отрисовка самого слота
                 pygame.draw.rect(screen, SLOT_COLORS["Frame"], cell, 1)
@@ -125,6 +137,8 @@ class Interface:
             if slot.item.ID != -1:
                 MOUSE.start_drag_slot = slot
 
+    #
+    # Проверка, перекрывает ли мышка этот интерфейс
     def interface_check(self):
         cell = self.get_cell(MOUSE.position)
 

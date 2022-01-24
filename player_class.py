@@ -1,9 +1,8 @@
 import csv
 
-from math import *
 from main_functions import *
 
-from persons_and_camera import Weapon
+from weapon_class import Weapon
 from enums import Enum
 
 
@@ -44,6 +43,7 @@ class Hero(pygame.sprite.Sprite):
                              (village_size // 2, village_size // 4 * 3)])
 
         # Переменные, основные
+        self.attributes = PlayerAttributes.init()
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
@@ -62,8 +62,8 @@ class Hero(pygame.sprite.Sprite):
 
         # Прочие переменные
         self.state = PlayerStates.Normal
-        self.directions = {(0, -STEP): False, (-STEP, 0): False, (0, STEP): False, (STEP, 0): False}
-        self.attributes = PlayerAttributes.init()
+        self.directions = {(0, -STEP): False, (-STEP, 0): False,
+                           (0, STEP): False, (STEP, 0): False}
         self.is_dmg = False
 
     def damage(self, dmg):
