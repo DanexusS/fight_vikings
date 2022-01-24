@@ -99,7 +99,6 @@ class Hero(pygame.sprite.Sprite):
 
     def damage(self, dmg):
         if self.state == PlayerStates.Normal:
-            print(10)
             self.is_dmg = True
             self.attributes[Attributes.Health].current_value -= dmg
             if self.attributes[Attributes.Health].current_value < 1:
