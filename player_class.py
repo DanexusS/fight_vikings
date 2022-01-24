@@ -35,30 +35,35 @@ class PlayerAttributes:
         return attributes
 
 
-class Hero(pygame.sprite.Sprite, PlayerAttributes):
+class Hero(pygame.sprite.Sprite):
     def __init__(self, village, village_size, inventory, equipment):
         super().__init__(village.player_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         pos = random.choice([(village_size // 4, village_size // 2),
                              (village_size // 4 * 3, village_size // 2),
                              (village_size // 2, village_size // 4),
                              (village_size // 2, village_size // 4 * 3)])
+
         # Переменные, основные
         self.image = pygame.transform.scale(load_image('hero.png'), (PLAYER_SIZE, PLAYER_SIZE))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = int(pos[0]) * CELL_SIZE
         self.rect.y = int(pos[1]) * CELL_SIZE
+
         # Переменные, атака
         self.is_attack = [False, False]
         self.angle_attack_range = None
         self.angle_attack_move = None
         self.count_attack = -1
-        # Переменные, прочие
+
+        # Инвентари
+        self.inventory = inventory
+        self.equipment_inventory = equipment
+
+        # Прочие переменные
         self.state = PlayerStates.Normal
         self.directions = {(0, -STEP): False, (-STEP, 0): False, (0, STEP): False, (STEP, 0): False}
         self.attributes = PlayerAttributes.init()
-        self.inventory = inventory
-        self.equipment_inventory = equipment
         self.is_dmg = False
 
     def damage(self, dmg):
@@ -70,7 +75,7 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
                 self.attributes[Attributes.Health].current_value = AttributeValue()
         return self.state
 
-    def move_player(self, direction, other):
+    def move_player(self, direction, village):
         # Проверка нужно ли идти в данную сторону
         if direction[1]:
             # Движение в эту сторону
@@ -79,7 +84,7 @@ class Hero(pygame.sprite.Sprite, PlayerAttributes):
             self.rect = self.rect.move(x, y)
             # Если герой врезался во что то, то возвращаем назад
             collide = False
-            for sprite in other.collide_sprites:
+            for sprite in village.collide_sprites:
                 if pygame.sprite.collide_mask(self, sprite) and sprite != self:
                     collide = True
                     break

@@ -66,18 +66,18 @@ class MainGame:
                 if MOUSE.current_interface:
                     if event.type == pygame.QUIT:
                         running_inv = False
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         MOUSE.current_interface.slot_clicked(event.pos)
-                    elif event.type == pygame.MOUSEMOTION:
+                    if event.type == pygame.MOUSEMOTION:
                         MOUSE.current_interface.mouse_move(event.pos)
-                    elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.type == pygame.MOUSEBUTTONUP:
                         MOUSE.current_interface.drop_item(event.pos)
-                    elif event.type == pygame.KEYUP:
-                        if event.key == pygame.K_i or event.key == pygame.K_ESCAPE:
-                            if MOUSE.slot_hovered_over:
-                                MOUSE.slot_hovered_over.mouse_hovered = False
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_i or event.key == pygame.K_ESCAPE:
+                        if MOUSE.slot_hovered_over:
+                            MOUSE.slot_hovered_over.mouse_hovered = False
                             MOUSE.slot_hovered_over = None
-                            self.main_game()
+                        self.main_game()
 
             MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
@@ -86,6 +86,12 @@ class MainGame:
             for interface in player_interfaces:
                 interface.interface_check()
                 interface.render_slots(screen)
+
+            x = 0
+            for k, v in self.player.attributes.items():
+                text = ATTRIBUTE_FONT.render(f"{RUS_ATTRIBUTES[k].capitalize()} -> {v.current_value}", True, BG_BTN)
+                screen.blit(text, (1425, x * 35 + 52.5))
+                x += 1
 
             # Перемещение изображения предмета во временя перетаскивания
             if MOUSE.start_drag_slot:
