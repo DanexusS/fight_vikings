@@ -7,6 +7,8 @@
 
     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 """
+
+
 from items import ItemType
 from main_functions import *
 
@@ -64,6 +66,7 @@ class Hero(pygame.sprite.Sprite):
         self.angle_attack_range = None
         self.angle_attack_move = None
         self.count_attack = -1
+        self.weapon = Weapon(village, 'sword')
 
         # Инвентари
         self.inventory = inventory
@@ -123,9 +126,8 @@ class Hero(pygame.sprite.Sprite):
                 self.rect = self.rect.move(-x, -y)
 
     def attack(self, village):
-        # Очистка
-        for sword in village.sword_sprites:
-            village.sword_sprites.remove(sword)
+        village.sword_sprites.remove(self.weapon)
+        self.weapon.kill()
         self.weapon = Weapon(village, 'sword')
         # Обычная атака
         if self.is_attack[0]:
@@ -139,7 +141,7 @@ class Hero(pygame.sprite.Sprite):
                                  Vector2(self.rect.x, self.rect.y))[1] + MIN_COE * 40
                 self.count_attack = 10
             # Отрисовка и шаг
-            step_and_draw_attack(self, size_step_attack)
+            step_and_draw_attack(self, size_step_attack, PLAYER_CENTER)
             # Атака
             self.weapon.attack(self.attributes[Attributes.Damage].current_value, village)
             # Конец цикла атаки
@@ -158,7 +160,7 @@ class Hero(pygame.sprite.Sprite):
                                  Vector2(self.rect.x, self.rect.y))
                 self.count_attack = 360 // size_step_attack
             # Отрисовка и шаг
-            step_and_draw_attack(self, size_step_attack)
+            step_and_draw_attack(self, size_step_attack, PLAYER_CENTER)
             # Атака
             self.weapon.attack(self.attributes[Attributes.Damage].current_value // 2, village)
             # Конец цикла атаки
@@ -168,7 +170,7 @@ class Hero(pygame.sprite.Sprite):
                 for sprite in village.attack_sprites:
                     sprite.is_dmg = False
         else:
-            # Если герой не атакует, то меч удалить
+            village.sword_sprites.remove(self.weapon)
             self.weapon.kill()
 
     def set_dir(self, event, value):

@@ -27,6 +27,7 @@ class Enemy(pygame.sprite.Sprite):
         self.angle_attack_range = None
         self.angle_attack_move = None
         self.count_attack = -1
+        self.weapon = Weapon(village, 'sword')
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -38,9 +39,8 @@ class Enemy(pygame.sprite.Sprite):
         return self.status
 
     def attack(self, village):
-        # Очистка
-        for sword in village.sword_sprites:
-            village.sword_sprites.remove(sword)
+        village.sword_sprites.remove(self.weapon)
+        self.weapon.kill()
         self.weapon = Weapon(village, 'sword')
         # Обычная атака
         if self.is_attack:
@@ -48,19 +48,22 @@ class Enemy(pygame.sprite.Sprite):
             # Начало цикла атаки
             if self.count_attack == -1:
                 self.angle_attack_range, self.angle_attack_move = \
-                    search_angle(Vector2(self.rect.x, self.rect.y), PLAYER_CENTER)[0] + 40, \
-                    search_angle(Vector2(self.rect.x, self.rect.y), PLAYER_CENTER)[1] + MIN_COE * 40
+                    search_angle(PLAYER_CENTER, Vector2(self.rect.x, self.rect.y))[0] + 40, \
+                    search_angle(PLAYER_CENTER, Vector2(self.rect.x, self.rect.y))[1] + MIN_COE * 40
                 self.count_attack = 10
             # Отрисовка и шаг
-            step_and_draw_attack(self, size_step_attack)
+            step_and_draw_attack(self, size_step_attack, self.rect)
             # Атака
-            self.weapon.attack(10, village)
+            self.weapon.attack(8, village, 'Hero')
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
                 self.is_attack = False
                 for sprite in village.attack_sprites:
                     sprite.is_dmg = False
+        else:
+            village.sword_sprites.remove(self.weapon)
+            self.weapon.kill()
 
     def check_collide(self, village, posx, posy, move=False, only_house=False):
         c = 1
@@ -156,6 +159,10 @@ class Enemy(pygame.sprite.Sprite):
             if self.rect.y >= y:
                 self.rect = self.rect.move(self.move_vectors['up'].x, self.move_vectors['up'].y)
                 self.check_avoidance(village, self.move_vectors['up'].x, self.move_vectors['up'].y)
+        # Атака
+        if not self.is_attack and distance < PLAYER_SIZE * 2:
+            self.is_attack = True
+        self.attack(village)
 
 
 class Camera:
