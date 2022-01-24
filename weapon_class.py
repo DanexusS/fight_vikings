@@ -16,20 +16,22 @@ class Weapon(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image, int(angle))
         return angle
 
-    def attack(self, dmg, other):
+    def attack(self, dmg, village, target=False):
         # Если соприкосаеться с объектом - удар
         objs_collide = []
-        for sprite in other.collide_sprites:
-            if pygame.sprite.collide_mask(self, sprite):
+        for sprite in village.collide_sprites:
+            if pygame.sprite.collide_mask(self, sprite) and (not target or (sprite.__class__.__name__ == target)):
                 obj = sprite
                 objs_collide.append(obj)
                 # Бьёт 1 раз
                 if not obj.is_dmg:
                     status = obj.damage(dmg)
-                    if obj.__class__.__name__ == 'Enemy' and status == 'destroyed':
+                    if obj.__class__.__name__ in ['Enemy', 'Hero'] and str(status) in ['destroyed', 'PlayerStates.Dead']:
                         obj.kill()
-                        other.enemies.remove(obj)
+                        if obj.weapon:
+                            village.sword_sprites.remove(obj.weapon)
+                            obj.weapon.kill()
         # Перезагрузка удара
-        for sprite in other.collide_sprites:
+        for sprite in village.collide_sprites:
             if sprite not in objs_collide:
                 sprite.is_dmg = False
