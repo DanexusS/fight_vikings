@@ -154,7 +154,7 @@ class MainGame:
                 self.player.move_player(direction, self.village)
 
             # Атака героя
-            self.player.attack(self.village)
+            self.player.attack(self.village, )
 
             # Обновления врагов
             for enemy in self.village.enemies_sprites:
