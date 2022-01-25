@@ -15,7 +15,7 @@ import item_database
 import persons_and_camera
 import village_generation
 
-from player_class import Hero
+from player_class import *
 from interface import *
 from constants import *
 
@@ -141,7 +141,7 @@ class MainGame:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
                         self.draw_main_menu()
-                    if event.key == pygame.K_i:
+                    if event.key == pygame.K_i and self.player.state != PlayerStates.Dead:
                         screen.fill(BG_COLOR)
                         self.inventory_opened()
 

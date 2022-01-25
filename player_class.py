@@ -72,26 +72,22 @@ class Hero(pygame.sprite.Sprite):
         self.inventory = inventory
         self.equipment_inventory = equipment
 
-        # self.player_equipment = {}
-        # i = 0
-        # for item in ["sword", "helmet", "armor", "pants", "boots"]:
-        #     slot = self.equipment_inventory.slots[0][i]
-        #     if slot.item.ID != -1:
-        #         self.player_equipment[item] = slot
-        #     else:
-        #         self.player_equipment[item] = None
-        #     i += 1
-        
-        # self.apply_modifiers()
-
         for slot in self.equipment_inventory.slots[0]:
             self.apply_modifiers(slot.item)
+            slot.before_update_funcs += self.on_remove_item()
+            slot.after_update_funcs += self.on_add_item()
 
         # Прочие переменные
         self.state = PlayerStates.Normal
         self.directions = {(0, -STEP): False, (-STEP, 0): False,
                            (0, STEP): False, (STEP, 0): False}
         self.is_dmg = False
+
+    def on_remove_item(self):
+        pass
+
+    def on_add_item(self):
+        pass
 
     def apply_modifiers(self, item):
         if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:

@@ -1,3 +1,4 @@
+from general_stuff import Delegate
 from items import *
 
 
@@ -12,16 +13,17 @@ class InventorySlot:
         self.ui_display = item.image
         self.parent = None
         self.mouse_hovered = False
-        self.after_update_funcs = []
+        self.before_update_funcs = Delegate()
+        self.after_update_funcs = Delegate()
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
+        self.before_update_funcs.invoke()
+
         self.item = item
         self.amount = amount
         self.ui_display = item.image
 
-        if self.after_update_funcs:
-            for func in self.after_update_funcs:
-                func()
+        self.after_update_funcs.invoke()
 
     def add_amount(self, amount: int):
         self.update_slot(self.item, self.amount + amount)
