@@ -111,6 +111,8 @@ class Hero(pygame.sprite.Sprite):
             y = direction[0][1] * self.attributes[Attributes.Move_Speed].current_value
             self.rect = self.rect.move(x, y)
             # Если герой врезался во что то, то возвращаем назад
+            if self.state == PlayerStates.Dead:
+                return
             collide = False
             for sprite in village.collide_sprites:
                 if pygame.sprite.collide_mask(self, sprite) and sprite != self:
@@ -120,6 +122,8 @@ class Hero(pygame.sprite.Sprite):
                 self.rect = self.rect.move(-x, -y)
 
     def attack(self, village):
+        if self.state == PlayerStates.Dead:
+            return
         village.sword_sprites.remove(self.weapon)
         self.weapon.kill()
         self.weapon = Weapon(village, 'sword')
