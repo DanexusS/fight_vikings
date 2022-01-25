@@ -1,3 +1,14 @@
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
 import random
 import pygame
 from enums import Enum

@@ -34,6 +34,8 @@ class Interface:
         self.space = space
         self.offset = start_pos
 
+        self.inventory.interface = self
+
         self.height = len(self.inventory.slots)
         self.width = len(self.inventory.slots[0])
 

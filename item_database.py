@@ -1,13 +1,24 @@
-import sqlite3
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
+from sqlite3 import connect
 from items import *
 from constants import Attributes
 
 
 def init():
-    con = sqlite3.connect("items_db.sqlite")
-    cur = con.cursor()
-    result = cur.execute("""SELECT * FROM items""").fetchall()
-    db = {}
+    connection = connect("items_db.sqlite")
+    cursor = connection.cursor()
+    result = cursor.execute("""SELECT * FROM items""").fetchall()
+    database = {}
 
     for elem in result:
         _type = elem[2]
@@ -30,7 +41,7 @@ def init():
             item.buffs = []
             if elem[5] != -1:
                 for buff_id in map(int, str(elem[5]).split(";")):
-                    buffs_db = cur.execute(f"""SELECT * FROM buffs WHERE {int(buff_id)} = buffs.id""").fetchone()
+                    buffs_db = cursor.execute(f"""SELECT * FROM buffs WHERE {int(buff_id)} = buffs.id""").fetchone()
 
                     if int(buffs_db[1]) > 0 and item.buffs is not None:
                         item.buffs.append(ItemBuff(Attributes.from_value(int(buffs_db[1]) - 1), float(buffs_db[2])))
@@ -38,7 +49,7 @@ def init():
         if item is not None:
             item.ID = elem[0]
             item.image = elem[4]
-            db[_title] = item
+            database[_title] = item
 
-    con.close()
-    return db
+    connection.close()
+    return database

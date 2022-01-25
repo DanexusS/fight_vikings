@@ -1,4 +1,14 @@
-from general_stuff import Delegate
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Dunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
 from items import *
 
 
@@ -11,19 +21,24 @@ class InventorySlot:
         self.amount = amount
         self.allowed_types = allowed_types
         self.ui_display = item.image
-        self.parent = None
         self.mouse_hovered = False
-        self.before_update_funcs = Delegate()
-        self.after_update_funcs = Delegate()
+        self.before_update = []
+        self.after_update = []
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
-        self.before_update_funcs.invoke()
+        if self.before_update:
+            for func in self.before_update:
+                if func:
+                    func(self, -1)
 
         self.item = item
         self.amount = amount
         self.ui_display = item.image
 
-        self.after_update_funcs.invoke()
+        if self.before_update:
+            for func in self.before_update:
+                if func:
+                    func(self)
 
     def add_amount(self, amount: int):
         self.update_slot(self.item, self.amount + amount)
@@ -45,6 +60,8 @@ class Inventory:
         if default_items:
             for item in default_items:
                 self.add_item(item)
+
+        self.interface = None
 
     def empty_slot_count(self) -> int:
         counter = 0

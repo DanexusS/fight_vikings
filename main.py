@@ -12,9 +12,9 @@
 import sys
 import threading
 import item_database
-import persons_and_camera
 import village_generation
 
+from persons_and_camera import Camera
 from player_class import *
 from interface import *
 from constants import *
@@ -77,12 +77,14 @@ class MainGame:
         # Инициализация интерфейсов в списке
         # # Первый интерфейс - это сам инвентарь
         # # Второй - инвентарь снаряжения
+
         player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
                                        InterfaceTypes.Regular),
                              Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875),
                                        InterfaceTypes.Equipment, allowed_types)]
-        for slot in player_interfaces[0].inventory.slots[0]:
-            slot.after_update_funcs = self.player.apply_modifiers(slot.item)
+
+        # for slot in self.player_interfaces[0].inventory.slots[0]:
+        #     slot.after_update_funcs = self.player.apply_modifiers(slot.item)
             
         threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
         running_inv = True
@@ -201,9 +203,9 @@ class MainGame:
 
                         # Создание объектов
                         self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
-                        self.player = Hero(self.village, MAP_SIZE * 2,
-                                           Inventory(60, 10), Inventory(5, 5, [items_db["Sword"]]))
-                        self.camera = persons_and_camera.Camera()
+                        self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
+                                           Inventory(5, 5, [items_db["Sword"]]))
+                        self.camera = Camera()
 
                         self.main_game()
             pygame.display.flip()

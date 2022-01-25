@@ -73,9 +73,9 @@ class Hero(pygame.sprite.Sprite):
         self.equipment_inventory = equipment
 
         for slot in self.equipment_inventory.slots[0]:
-            self.apply_modifiers(slot.item)
-            slot.before_update_funcs += self.on_remove_item()
-            slot.after_update_funcs += self.on_add_item()
+            self.on_change_item_state(slot)
+            slot.before_update.append(self.on_change_item_state)
+            slot.after_update.append(self.on_change_item_state)
 
         # Прочие переменные
         self.state = PlayerStates.Normal
@@ -83,18 +83,16 @@ class Hero(pygame.sprite.Sprite):
                            (0, STEP): False, (STEP, 0): False}
         self.is_dmg = False
 
-    def on_remove_item(self):
-        pass
+    def on_change_item_state(self, slot, coe=1):
+        if not slot:
+            return
 
-    def on_add_item(self):
-        pass
-
-    def apply_modifiers(self, item):
+        item = slot.item
         if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
             for buff in item.buffs:
-                self.attributes[buff.affected_attribute].current_value += buff.value
+                self.attributes[buff.affected_attribute].current_value += coe * buff.value
             if item.TYPE == ItemType.Weapon:
-                self.attributes[Attributes.Damage].current_value += item.damage.value
+                self.attributes[Attributes.Damage].current_value += coe * item.damage.value
 
     def damage(self, dmg):
         if self.state == PlayerStates.Normal:
