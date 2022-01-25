@@ -11,6 +11,9 @@
 
 import sys
 import threading
+
+import pygame.time
+
 import item_database
 import village_generation
 
@@ -66,9 +69,23 @@ class MainGame:
 
     @staticmethod
     def draw_load():
+        # Надпись загрузки
         screen.fill(BG)
         screen.blit(FONT_LOAD.render('Загрузка...', True, BG_BTN), (width // 2 - 120, height // 2))
+
+        # Обновить
         pygame.display.flip()
+
+    @staticmethod
+    def draw_died():
+        surf = load_image('bg_die.png')
+        rect = surf.get_rect()
+        screen.blit(surf, rect)
+
+        # Кнопка выход
+        pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
+        pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
+        screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
     def inventory_opened(self):
         # Типы предметов, которые можно класть в слоты снаряжения
@@ -86,7 +103,10 @@ class MainGame:
         # for slot in self.player_interfaces[0].inventory.slots[0]:
         #     slot.after_update_funcs = self.player.apply_modifiers(slot.item)
             
-        threading.Thread(target=player_interfaces[0].render_slots(screen)).start()
+        thread = threading.Thread(target=player_interfaces[0].render_slots(screen))
+        thread.daemon = True
+        thread.start()
+
         running_inv = True
         while running_inv:
             # Основные события, нужные для работы инвенторя
@@ -123,7 +143,7 @@ class MainGame:
                 screen.blit(text, (1425, y * 35 + 52.5))
                 y += 1
 
-            # Перемещение изображения предмета во временя перетаскивания
+            # Перемещение изображения предмета во время перетаскивания
             if MOUSE.start_drag_slot:
                 image = pygame.image.load(MOUSE.start_drag_slot.ui_display)
                 slot_image = pygame.transform.scale(image.convert_alpha(), (96, 96))
@@ -134,11 +154,11 @@ class MainGame:
     def main_game(self):
         screen.fill(BG)
 
-        running_menu = True
-        while running_menu:
+        running_game = True
+        while running_game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running_menu = False
+                    running_game = False
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
                         screen.fill(BG)
@@ -146,6 +166,13 @@ class MainGame:
                     if event.key == pygame.K_i and self.player.state != PlayerStates.Dead:
                         screen.fill(BG_COLOR)
                         self.inventory_opened()
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                    if self.player.state == PlayerStates.Dead and \
+                            (pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and
+                             pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y):
+                        screen.fill(BG)
+                        self.draw_main_menu()
 
                 self.player.update(event)
 
@@ -156,7 +183,7 @@ class MainGame:
                 self.player.move_player(direction, self.village)
 
             # Атака героя
-            self.player.attack(self.village, )
+            self.player.attack(self.village)
 
             # Обновления врагов
             for enemy in self.village.enemies_sprites:
@@ -167,8 +194,16 @@ class MainGame:
             for sprite in self.village.all_sprites:
                 self.camera.apply(sprite)
 
+            # Отображение всей деревни
             self.village.render(screen)
+
+            # Отображение экрана смерти, если игрок умер
+            if self.player.state == PlayerStates.Dead:
+                self.draw_died()
+
+            # Обновление экрана
             pygame.display.flip()
+            pygame.time.delay(10)
 
     @staticmethod
     def button_hover(mouse_pos: Vector2):
@@ -183,21 +218,23 @@ class MainGame:
 
     def draw_main_menu(self):
         # Создание объектов
-        threading.Thread(target=self.draw_menu).start()
+        thread = threading.Thread(target=self.draw_menu)
+        thread.daemon = True
+        thread.start()
 
         running_menu = True
         while running_menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running_menu = False
-                if event.type == pygame.MOUSEBUTTONUP:
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                     button = self.button_hover(MOUSE.position)
 
                     if button == "Exit":
                         sys.exit()
                     if button == "Play":
-                        thread = threading.Thread(target=self.draw_load())
+                        thread = threading.Thread(target=self.draw_load)
                         thread.daemon = True
                         thread.start()
 
