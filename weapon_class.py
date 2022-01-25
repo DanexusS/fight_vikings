@@ -19,6 +19,8 @@ class Weapon(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(pygame.transform.scale(load_image(f"{name_weapon}.png"),
                                                                     (PLAYER_SIZE - 10, PLAYER_SIZE - 10)), 180)
         self.rect = self.image.get_rect()
+        self.rect.x = -100
+        self.rect.y = -100
 
     def rotate(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -31,13 +33,15 @@ class Weapon(pygame.sprite.Sprite):
         # Если соприкосаеться с объектом - удар
         objs_collide = []
         for sprite in village.collide_sprites:
-            if pygame.sprite.collide_mask(self, sprite) and (not target or (sprite.__class__.__name__ == target)):
+            if pygame.sprite.collide_mask(self, sprite) and \
+                    ((not target and sprite.__class__.__name__ != 'Hero') or sprite.__class__.__name__ == target):
                 obj = sprite
                 objs_collide.append(obj)
                 # Бьёт 1 раз
                 if not obj.is_dmg:
                     status = obj.damage(dmg)
-                    if obj.__class__.__name__ in ['Enemy', 'Hero'] and str(status) in ['destroyed', 'PlayerStates.Dead']:
+                    if obj.__class__.__name__ in ['Enemy', 'Hero'] and \
+                            str(status) in ['destroyed', 'PlayerStates.Dead']:
                         obj.kill()
                         if obj.weapon:
                             village.sword_sprites.remove(obj.weapon)
