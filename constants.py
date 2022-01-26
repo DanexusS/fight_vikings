@@ -11,9 +11,10 @@
 
 import random
 import pygame
-from enums import Enum
+
 from pygame import Vector2
 import item_database
+from general_stuff import Attributes
 
 
 class GameMouseData:
@@ -34,7 +35,8 @@ BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 SIZE_MENU_BTN = Vector2(300, 80)
 MOUSE = GameMouseData()
-items_db = item_database.init()
+ITEMS_DB = item_database.init()
+
 
 """Игрок"""
 
@@ -65,16 +67,6 @@ RANGE_SQUARE = MAP_SIZE // 2.5
 
 
 """Инвентарь"""
-
-
-class Attributes(Enum):
-    Move_Speed = 0
-    Attack_Speed = 1
-    Attack_Radius = 2
-    Damage = 3
-    Health = 4
-    Armor = 5
-    Stamina = 6
 
 
 BG_COLOR = pygame.Color("#43485E")

@@ -8,23 +8,16 @@
     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 """
 
-
 import sys
 import threading
-import item_database
-import village_generation
-
-from persons_and_camera import Camera
 
 from player_class import *
 from interface import *
 from constants import *
 from village import Village
 
-
 # Создание окна pygame
 pygame.init()
-
 
 size = width, height = WIDTH, HEIGHT
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -157,7 +150,7 @@ class MainGame:
                     row = 0
                     column += 1
 
-                slot = InventorySlot(items_db[line["title"]], int(line["amount"]))
+                slot = InventorySlot(ITEMS_DB[line["title"]], int(line["amount"]))
                 self.player_interfaces[i].inventory.set_slot(row, column, slot)
 
                 row += 1
@@ -182,8 +175,8 @@ class MainGame:
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                     if self.player.state == PlayerStates.Dead and \
-                            (pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and
-                             pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y):
+                            pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and \
+                            pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y:
                         screen.fill(BG)
                         self.draw_main_menu()
 
@@ -262,7 +255,7 @@ class MainGame:
             #                              ItemType.Equipment, ItemType.Equipment]
             #
             #             self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
-            #                                Inventory(5, 5, [items_db["Sword"]]))
+            #                                Inventory(5, 5, [ITEMS_DB["Sword"]]))
             #
             #             # Инициализация интерфейсов в списке
             #             # # Первый интерфейс - это сам инвентарь

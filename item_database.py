@@ -11,7 +11,6 @@
 
 from sqlite3 import connect
 from items import *
-from constants import Attributes
 
 
 def init():

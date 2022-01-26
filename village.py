@@ -511,7 +511,7 @@ class Village:
                                      ItemType.Equipment, ItemType.Equipment]
 
                     self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
-                                       Inventory(5, 5, [items_db["Sword"]]))
+                                       Inventory(5, 5, [ITEMS_DB["Sword"]]))
 
                     # Инициализация интерфейсов в списке
                     # # Первый интерфейс - это сам инвентарь

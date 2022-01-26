@@ -10,7 +10,7 @@
 
 
 from enums import Enum
-from constants import Attributes
+from general_stuff import Attributes
 
 
 class ItemType(Enum):
