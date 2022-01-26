@@ -91,17 +91,14 @@ class MainGame:
         # Типы предметов, которые можно класть в слоты снаряжения
         allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
                          ItemType.Equipment, ItemType.Equipment]
+
         # Инициализация интерфейсов в списке
         # # Первый интерфейс - это сам инвентарь
         # # Второй - инвентарь снаряжения
-
         player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
                                        InterfaceTypes.Regular),
                              Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875),
                                        InterfaceTypes.Equipment, allowed_types)]
-
-        # for slot in self.player_interfaces[0].inventory.slots[0]:
-        #     slot.after_update_funcs = self.player.apply_modifiers(slot.item)
             
         thread = threading.Thread(target=player_interfaces[0].render_slots(screen))
         thread.daemon = True

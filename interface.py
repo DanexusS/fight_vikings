@@ -11,6 +11,7 @@
 
 from inventory_obj import *
 from constants import *
+from main_functions import load_image
 
 
 pygame.init()
@@ -63,8 +64,7 @@ class Interface:
                     pygame.draw.rect(screen, SLOT_COLORS["Hovered_BG"], cell, 0)
                 # # Отрисовка изображения для слотов с ограничениями по типам
                 if slot.item.ID == -1 and slot.allowed_types:
-                    slot_image = pygame.transform.scale(pygame.image.load(f"images/ui_{types_row[x]}.png").convert_alpha(),
-                                                        (96, 96))
+                    slot_image = pygame.transform.scale(load_image(f"ui_{types_row[x]}.png"), (96, 96))
                     rect = slot_image.get_rect(center=(cell_position.x + INV_SLOT_SIZE // 2,
                                                        cell_position.y + INV_SLOT_SIZE // 2))
                     screen.blit(slot_image, rect)

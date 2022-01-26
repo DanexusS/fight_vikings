@@ -9,14 +9,12 @@
 """
 
 
-import os
 import math
 from constants import *
 
 
 def load_image(name):
-    fullname = os.path.join('images/', name)
-    return pygame.image.load(fullname).convert_alpha()
+    return pygame.image.load(f"images/{name}").convert_alpha()
 
 
 def size_img(name, num=1):
