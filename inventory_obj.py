@@ -9,12 +9,12 @@
 """
 
 
-from items import *
+from item_database import AbstractItem
 
 
 class InventorySlot:
-    def __init__(self, item: AbstractItem, amount: int, before_update=None, after_update=None,
-                 allowed_types: list[ItemType] = None):
+    def __init__(self, item, amount: int, before_update=None, after_update=None,
+                 allowed_types=None):
         self.item = item
         self.amount = amount
         self.allowed_types = allowed_types if allowed_types else []
@@ -32,7 +32,7 @@ class InventorySlot:
             info[fieldnames[i]] = data[i]
         return info
 
-    def update_slot(self, item: AbstractItem = None, amount: int = 0):
+    def update_slot(self, item=None, amount: int = 0):
         if self.before_update:
             for func in self.before_update:
                 if func:
@@ -50,14 +50,14 @@ class InventorySlot:
     def add_amount(self, amount: int):
         self.update_slot(self.item, self.amount + amount)
 
-    def can_place_in_slot(self, item: AbstractItem) -> bool:
+    def can_place_in_slot(self, item) -> bool:
         if self.allowed_types == [] or item is None or item.ID == -1:
             return True
         return item.TYPE in self.allowed_types
 
 
 class Inventory:
-    def __init__(self, size: int, num_of_rows: int, default_items: list[AbstractItem] = None):
+    def __init__(self, size: int, num_of_rows: int, default_items=None):
         height = size // num_of_rows
         width = size // height
 
@@ -81,7 +81,7 @@ class Inventory:
                     counter += 1
         return counter
 
-    def add_item(self, item: AbstractItem, amount: int = 1) -> bool:
+    def add_item(self, item, amount: int = 1) -> bool:
         if self.empty_slot_count() <= 0:
             return False
 
@@ -94,14 +94,14 @@ class Inventory:
         slot.add_amount(amount)
         return True
 
-    def find_item_in_inv(self, item: AbstractItem):
+    def find_item_in_inv(self, item):
         for row in self.slots:
             for slot in row:
                 if slot.item.ID == item.ID:
                     return slot
         return None
 
-    def set_empty_slot(self, item: AbstractItem, amount: int):
+    def set_empty_slot(self, item, amount: int):
         for row in self.slots:
             for slot in row:
                 if slot.item.ID == -1:
@@ -109,7 +109,7 @@ class Inventory:
                     return slot
         return None
 
-    def remove_item(self, item: AbstractItem):
+    def remove_item(self, item):
         for row in self.slots:
             for slot in row:
                 if slot.item == item:

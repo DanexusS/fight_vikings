@@ -6,51 +6,51 @@ from persons_and_camera import Camera
 
 from player_class import *
 from interface import *
-from constants import *
+from general_stuff import *
 
 
 class Village:
     def __init__(self):
         self.houses = {'castle': 1, 'brewery': 1, 'blacksmith': 1, 'tower': 1}
-        self.resoces = {'gold': 1, 'wood': 1, 'iron': 1}
+        self.resource = {'gold': 1, 'wood': 1, 'iron': 1}
 
     def add_res(self, amounts):
         for elem in amounts:
-            self.resoces[elem[0]] += elem[1]
+            self.resource[elem[0]] += elem[1]
 
     def upgrade_house(self, name):
         base = self.houses['castle']
         if name == 'cas':
             cur = self.houses['castle']
-            if self.resoces['gold'] - 100 * cur >= 0 and self.resoces['wood'] - 100 * cur >= 0 and \
-                    0 <= self.resoces['iron'] - 100 * cur:
-                self.resoces['gold'] -= 100 * cur
-                self.resoces['wood'] -= 100 * cur
-                self.resoces['iron'] -= 100 * cur
+            if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 100 * cur >= 0 and \
+                    0 <= self.resource['iron'] - 100 * cur:
+                self.resource['gold'] -= 100 * cur
+                self.resource['wood'] -= 100 * cur
+                self.resource['iron'] -= 100 * cur
                 self.houses['castle'] += 1
         elif name == 'bre':
             cur = self.houses['brewery']
-            if self.resoces['gold'] - 100 * cur >= 0 and self.resoces['wood'] - 50 * cur >= 0 and \
-                    self.resoces['iron'] - 5 * cur >= 0 and base > cur:
-                self.resoces['gold'] -= 100 * cur
-                self.resoces['wood'] -= 50 * cur
-                self.resoces['iron'] -= 5 * cur
+            if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 50 * cur >= 0 and \
+                    self.resource['iron'] - 5 * cur >= 0 and base > cur:
+                self.resource['gold'] -= 100 * cur
+                self.resource['wood'] -= 50 * cur
+                self.resource['iron'] -= 5 * cur
                 self.houses['brewery'] += 1
         elif name == 'bla':
             cur = self.houses['blacksmith']
-            if self.resoces['gold'] - 100 * cur >= 0 and self.resoces['wood'] - 15 * cur >= 0 and \
-                    self.resoces['iron'] - 100 * cur >= 0 and base > cur:
-                self.resoces['gold'] -= 100 * cur
-                self.resoces['wood'] -= 15 * cur
-                self.resoces['iron'] -= 100 * cur
+            if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 15 * cur >= 0 and \
+                    self.resource['iron'] - 100 * cur >= 0 and base > cur:
+                self.resource['gold'] -= 100 * cur
+                self.resource['wood'] -= 15 * cur
+                self.resource['iron'] -= 100 * cur
                 self.houses['blacksmith'] += 1
         elif name == 'tow':
             cur = self.houses['tower']
-            if self.resoces['gold'] - 100 * cur >= 0 and self.resoces['wood'] - 200 * cur >= 0 and \
-                    self.resoces['iron'] - 40 * cur >= 0 and base > cur:
-                self.resoces['gold'] -= 100 * cur
-                self.resoces['wood'] -= 200 * cur
-                self.resoces['iron'] -= 40 * cur
+            if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 200 * cur >= 0 and \
+                    self.resource['iron'] - 40 * cur >= 0 and base > cur:
+                self.resource['gold'] -= 100 * cur
+                self.resource['wood'] -= 200 * cur
+                self.resource['iron'] -= 40 * cur
                 self.houses['tower'] += 1
 
     def load(self, file_name):
@@ -64,7 +64,7 @@ class Village:
                         self.houses[buildings[i]] = int(elem[i])
                 else:
                     for i in range(0, 3):
-                        self.resoces[res[i]] = int(elem[i])
+                        self.resource[res[i]] = int(elem[i])
 
     def save(self, file_name):
         with open(file_name, mode='w', newline='') as save:
@@ -74,7 +74,7 @@ class Village:
                 spis.append(elem)
             write.writerow(spis)
             spis = []
-            for elem in self.resoces.values():
+            for elem in self.resource.values():
                 spis.append(elem)
             write.writerow(spis)
             save.close()
@@ -100,24 +100,24 @@ class Village:
         main_theme = pygame.mixer.Sound('Last_version.wav')
 
         zamok = pygame.image.load('images/castle.png')
-        zamok_clicked = pygame.image.load('images\\castle_clicked.png')
-        kuznya = pygame.image.load('images\\blacksmith.png')
-        kuznya_clicked = pygame.image.load('images\\blacksmith_clicked.png')
-        dungeon = pygame.image.load('images\\tower.png')
-        dungeon_clicked = pygame.image.load('images\\tower_clicked.png')
-        pivo = pygame.image.load('images\\brewery.png')
-        pivo_clicked = pygame.image.load('images\\brewery_clicked.png')
-        storage = pygame.image.load('images\\storage.png')
-        upgrade = pygame.image.load('images\\upgrade.png')
-        anvil = pygame.image.load('images\\anvil.png')
-        rama = pygame.image.load('images\\frames.png')
-        res = pygame.image.load('images\\resoces.png')
-        blacksmth_back = pygame.image.load('images\\forge.png')
-        plus = pygame.image.load('images\\plus.png')
-        minus = pygame.image.load('images\\minus.png')
-        attack = pygame.image.load('images\\attack.png')
-        escape = pygame.image.load('images\\exit_demo.png')
-        crafting = pygame.image.load('images\\craft_btn.png')
+        zamok_clicked = pygame.image.load('images/castle_clicked.png')
+        kuznya = pygame.image.load('images/blacksmith.png')
+        kuznya_clicked = pygame.image.load('images/blacksmith_clicked.png')
+        dungeon = pygame.image.load('images/tower.png')
+        dungeon_clicked = pygame.image.load('images/tower_clicked.png')
+        pivo = pygame.image.load('images/brewery.png')
+        pivo_clicked = pygame.image.load('images/brewery_clicked.png')
+        storage = pygame.image.load('images/storage.png')
+        upgrade = pygame.image.load('images/upgrade.png')
+        anvil = pygame.image.load('images/anvil.png')
+        rama = pygame.image.load('images/frames.png')
+        res = pygame.image.load('images/resoces.png')
+        blacksmth_back = pygame.image.load('images/forge.png')
+        plus = pygame.image.load('images/plus.png')
+        minus = pygame.image.load('images/minus.png')
+        attack = pygame.image.load('images/attack.png')
+        escape = pygame.image.load('images/exit_demo.png')
+        crafting = pygame.image.load('images/craft_btn.png')
         sprites = pygame.sprite.Group()
         sprites_for_forge = pygame.sprite.Group()
 
@@ -256,7 +256,7 @@ class Village:
         def recount():
             nonlocal money, money_pos, woods, woods_pos, iron, iron_pos
             sup = []
-            for elem in self.resoces.values():
+            for elem in self.resource.values():
                 if elem >= 1000000:
                     sup.append(f'{elem // 1000000}M')
                 elif elem >= 1000:
@@ -334,8 +334,8 @@ class Village:
         bottom_frame_pos.center = (1000, Y + 335)
 
         def forging():
-            if self.resoces['gold'] - used['gold'] >= 0 and self.resoces['wood'] - used['wood'] >= 0 and \
-                    self.resoces['iron'] - used['iron'] >= 0:
+            if self.resource['gold'] - used['gold'] >= 0 and self.resource['wood'] - used['wood'] >= 0 and \
+                    self.resource['iron'] - used['iron'] >= 0:
                 spis = []
                 con = sqlite3.connect('items_db.sqlite')
                 cur = con.cursor()
@@ -347,9 +347,9 @@ class Village:
                 if len(spis) > 0:
                     forged = spis[-1]
                     used_in = forged[8].split(';')
-                    self.resoces['gold'] -= int(used_in[0])
-                    self.resoces['wood'] -= int(used_in[1])
-                    self.resoces['iron'] -= int(used_in[2])
+                    self.resource['gold'] -= int(used_in[0])
+                    self.resource['wood'] -= int(used_in[1])
+                    self.resource['iron'] -= int(used_in[2])
                 # АХТУНГА НУЖЕН ДАНЕКСУС С ИНВЕНТАРЁМ
                 recount()
                 
@@ -393,7 +393,8 @@ class Village:
             screen.blit(woods, woods_pos)
             screen.blit(iron, iron_pos)
         main_theme.play(-1, 0, 500)
-        while True:
+        running = True
+        while running:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_TAB:
@@ -458,7 +459,8 @@ class Village:
                         fight = True
                     elif esc.rect.collidepoint(cur_pos):
                         self.save('save.csv')
-                        break
+                        main_theme.stop()
+                        exit(0)
                     else:
                         set_top('')
                         set_bottom('')

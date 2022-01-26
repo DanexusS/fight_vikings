@@ -9,7 +9,7 @@
 """
 
 
-from main_functions import *
+from general_stuff import *
 
 
 class Weapon(pygame.sprite.Sprite):

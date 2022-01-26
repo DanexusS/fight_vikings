@@ -9,8 +9,8 @@
 """
 
 
-from items import ItemType
-from main_functions import *
+from item_database import ItemType
+from general_stuff import *
 
 from csv import DictReader
 from weapon_class import Weapon

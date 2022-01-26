@@ -10,7 +10,7 @@
 
 
 import persons_and_camera
-from main_functions import *
+from general_stuff import *
 
 
 class House(pygame.sprite.Sprite):
