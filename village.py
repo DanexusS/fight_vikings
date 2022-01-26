@@ -1,3 +1,14 @@
+"""
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                        Fight Vikings
+                         ver. 1.0.0
+      ©2021-2022. Drunk Corporation. All rights reserved
+
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+"""
+
+
 import csv
 import sqlite3
 import village_generation
@@ -10,9 +21,10 @@ from general_stuff import *
 
 
 class Village:
-    def __init__(self):
+    def __init__(self, main_game):
         self.houses = {'castle': 1, 'brewery': 1, 'blacksmith': 1, 'tower': 1}
         self.resource = {'gold': 1, 'wood': 1, 'iron': 1}
+        self.main_game = main_game
 
     def add_res(self, amounts):
         for elem in amounts:
@@ -352,7 +364,7 @@ class Village:
                     self.resource['iron'] -= int(used_in[2])
                 # АХТУНГА НУЖЕН ДАНЕКСУС С ИНВЕНТАРЁМ
                 recount()
-                
+
         def set_top(text):
             nonlocal top_frame_pos, top_frame
             top_frame = fonts.render(text, True, (255, 0, 0))
@@ -506,29 +518,30 @@ class Village:
 
                 if fight:
                     # Создание объектов
-                    self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+                    self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
 
                     # Типы предметов, которые можно класть в слоты снаряжения
                     allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
                                      ItemType.Equipment, ItemType.Equipment]
 
-                    self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
-                                       Inventory(5, 5, [ITEMS_DB["Sword"]]))
+                    self.main_game.player = Hero(self.main_game.village, MAP_SIZE * 2, Inventory(60, 10),
+                                                 Inventory(5, 5))
 
                     # Инициализация интерфейсов в списке
                     # # Первый интерфейс - это сам инвентарь
                     # # Второй - инвентарь снаряжения
-                    self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
-                                                        InterfaceTypes.Regular),
-                                              Interface(self.player.equipment_inventory, Vector2(5, 5),
-                                                        Vector2(50, 875),
-                                                        InterfaceTypes.Equipment, allowed_types)]
+                    self.main_game.player_interfaces = [Interface(self.main_game.player.inventory,
+                                                                  Vector2(5, 5), Vector2(50, 62.5),
+                                                                  InterfaceTypes.Regular),
+                                                        Interface(self.main_game.player.equipment_inventory,
+                                                                  Vector2(5, 5),
+                                                                  Vector2(50, 875),
+                                                                  InterfaceTypes.Equipment, allowed_types)]
 
-                    self.camera = Camera()
+                    self.main_game.camera = Camera()
 
-                    self.main_game()
+                    self.main_game.main_game()
 
             update()
             clock.tick(20)
             pygame.display.flip()
-

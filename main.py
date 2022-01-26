@@ -16,6 +16,7 @@ from interface import *
 from general_stuff import *
 from village import Village
 
+
 # Создание окна pygame
 pygame.init()
 
@@ -140,7 +141,7 @@ class MainGame:
         fieldnames = ["item", "amount"]
 
         for i in range(len(self.player_interfaces)):
-            file = open(f"inventory_{i}.csv", newline="")
+            file = open(f"saves\inventory_{i}.csv", newline="")
             reader = list(DictReader(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC))[1:]
             row_count = len(self.player_interfaces[i].inventory.slots)
             row = 0
@@ -150,8 +151,9 @@ class MainGame:
                     row = 0
                     column += 1
 
-                slot = InventorySlot(ITEMS_DB[line["title"]], int(line["amount"]))
-                self.player_interfaces[i].inventory.set_slot(row, column, slot)
+                if line["item"] != "":
+                    slot = InventorySlot(ITEMS_DB[line["item"]], int(line["amount"]))
+                    self.player_interfaces[i].inventory.set_slot(row, column, slot)
 
                 row += 1
 
@@ -243,7 +245,7 @@ class MainGame:
                         thread = threading.Thread(target=self.draw_load)
                         thread.daemon = True
                         thread.start()
-                        main_village = Village()
+                        main_village = Village(self)
                         main_village.load('save.csv')
                         main_village.start()
 

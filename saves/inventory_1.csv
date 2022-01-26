@@ -1,6 +1,6 @@
-"item";"amount";"allowed_types"
-"Sword";1;"[<ItemType.Weapon: 2>]"
-"";0;"[<ItemType.Equipment: 1>]"
-"";0;"[<ItemType.Equipment: 1>]"
-"";0;"[<ItemType.Equipment: 1>]"
-"";0;"[<ItemType.Equipment: 1>]"
+"item";"amount"
+"Sword 1";1
+"";0
+"";0
+"";0
+"";0

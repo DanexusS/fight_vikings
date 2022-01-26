@@ -15,7 +15,7 @@ from enums import Enum
 
 from general_stuff import *
 from inventory_obj import *
-
+from item_database import ItemType
 
 pygame.init()
 
