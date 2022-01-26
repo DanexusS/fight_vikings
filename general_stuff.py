@@ -12,6 +12,7 @@
 import random
 import pygame
 import math
+import threading
 
 from pygame import Vector2
 import item_database
@@ -111,6 +112,17 @@ MIN_ROAD = MAP_SIZE // 10
 MAX_ROAD = MIN_ROAD * 2
 MASK = MAP_SIZE // 5
 RANGE_SQUARE = MAP_SIZE // 2.5
+
+
+def set_const():
+    global MAP_SIZE, EMPTY_N, GAME_CELL_SIZE, MIN_ROAD, MAX_ROAD, MASK, RANGE_SQUARE
+    MAP_SIZE = random.randrange(20, 30, 2)
+    EMPTY_N = MAP_SIZE // 2
+    GAME_CELL_SIZE = 180
+    MIN_ROAD = MAP_SIZE // 10
+    MAX_ROAD = MIN_ROAD * 2
+    MASK = MAP_SIZE // 5
+    RANGE_SQUARE = MAP_SIZE // 2.5
 
 
 """Инвентарь"""
