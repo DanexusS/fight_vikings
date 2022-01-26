@@ -86,8 +86,8 @@ class Interface:
             if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
                 if item.buffs is not None:
                     for buff in item.buffs:
-                        extra_info.append(f"""Характеристика "{RUS_ATTRIBUTES[buff.affected_attribute]}" увеличится """
-                                          f"""на {buff.value}""")
+                        text = f"увеличится на {buff.value}" if buff.value > 0 else f"уменьшится на {-buff.value}"
+                        extra_info.append(f"""Характеристика "{RUS_ATTRIBUTES[buff.affected_attribute]}" {text}""")
             if item.TYPE == ItemType.Weapon:
                 extra_info.append(f"Урон увеличивается на {item.damage.value}")
 
