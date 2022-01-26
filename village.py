@@ -26,6 +26,29 @@ class Village:
         self.resource = {'gold': 1, 'wood': 1, 'iron': 1}
         self.main_game = main_game
 
+        # Создание объектов
+        self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+
+        # Типы предметов, которые можно класть в слоты снаряжения
+        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
+                         ItemType.Equipment, ItemType.Equipment]
+
+        self.main_game.player = Hero(self.main_game.village, MAP_SIZE * 2, Inventory(60, 10),
+                                     Inventory(5, 5))
+
+        # Инициализация интерфейсов в списке
+        # # Первый интерфейс - это сам инвентарь
+        # # Второй - инвентарь снаряжения
+        self.main_game.player_interfaces = [Interface(self.main_game.player.inventory,
+                                                      Vector2(5, 5), Vector2(50, 62.5),
+                                                      InterfaceTypes.Regular),
+                                            Interface(self.main_game.player.equipment_inventory,
+                                                      Vector2(5, 5),
+                                                      Vector2(50, 875),
+                                                      InterfaceTypes.Equipment, allowed_types)]
+
+        self.main_game.camera = Camera()
+
     def add_res(self, amounts):
         for elem in amounts:
             self.resource[elem[0]] += elem[1]
@@ -473,6 +496,9 @@ class Village:
                         self.save('save.csv')
                         main_theme.stop()
                         exit(0)
+                    elif backpack.rect.collidepoint(cur_pos):
+                        screen.fill(BG_COLOR)
+                        self.main_game.on_inventory_open()
                     else:
                         set_top('')
                         set_bottom('')
@@ -517,29 +543,6 @@ class Village:
                         up = False
 
                 if fight:
-                    # Создание объектов
-                    self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
-
-                    # Типы предметов, которые можно класть в слоты снаряжения
-                    allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
-                                     ItemType.Equipment, ItemType.Equipment]
-
-                    self.main_game.player = Hero(self.main_game.village, MAP_SIZE * 2, Inventory(60, 10),
-                                                 Inventory(5, 5))
-
-                    # Инициализация интерфейсов в списке
-                    # # Первый интерфейс - это сам инвентарь
-                    # # Второй - инвентарь снаряжения
-                    self.main_game.player_interfaces = [Interface(self.main_game.player.inventory,
-                                                                  Vector2(5, 5), Vector2(50, 62.5),
-                                                                  InterfaceTypes.Regular),
-                                                        Interface(self.main_game.player.equipment_inventory,
-                                                                  Vector2(5, 5),
-                                                                  Vector2(50, 875),
-                                                                  InterfaceTypes.Equipment, allowed_types)]
-
-                    self.main_game.camera = Camera()
-
                     self.main_game.main_game()
 
             update()
