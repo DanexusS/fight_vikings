@@ -65,7 +65,7 @@ class Enemy(pygame.sprite.Sprite):
             # Отрисовка и шаг
             step_and_draw_attack(self, size_step_attack, self.rect)
             # Атака
-            self.weapon.attack(8, village, 'Hero')
+            self.weapon.attack(4, village, 'Hero')
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
@@ -171,7 +171,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect = self.rect.move(self.move_vectors['up'].x, self.move_vectors['up'].y)
                 self.check_avoidance(village, self.move_vectors['up'].x, self.move_vectors['up'].y)
         # Атака
-        if not self.is_attack and distance < PLAYER_SIZE * 2:
+        if not self.is_attack and distance < PLAYER_SIZE * 1.6:
             self.is_attack = True
         self.attack(village)
 
