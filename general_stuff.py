@@ -133,4 +133,3 @@ RUS_ATTRIBUTES = {
     Attributes.Armor: "броня",
     Attributes.Stamina: "выносливость"
 }
-
