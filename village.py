@@ -1,6 +1,12 @@
-import pygame
 import csv
 import sqlite3
+import village_generation
+
+from persons_and_camera import Camera
+
+from player_class import *
+from interface import *
+from constants import *
 
 
 class Village:
@@ -497,13 +503,30 @@ class Village:
                         up = False
 
                 if fight:
-                    pass
+                    # Создание объектов
+                    self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+
+                    # Типы предметов, которые можно класть в слоты снаряжения
+                    allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
+                                     ItemType.Equipment, ItemType.Equipment]
+
+                    self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
+                                       Inventory(5, 5, [items_db["Sword"]]))
+
+                    # Инициализация интерфейсов в списке
+                    # # Первый интерфейс - это сам инвентарь
+                    # # Второй - инвентарь снаряжения
+                    self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
+                                                        InterfaceTypes.Regular),
+                                              Interface(self.player.equipment_inventory, Vector2(5, 5),
+                                                        Vector2(50, 875),
+                                                        InterfaceTypes.Equipment, allowed_types)]
+
+                    self.camera = Camera()
+
+                    self.main_game()
 
             update()
             clock.tick(20)
             pygame.display.flip()
 
-
-a = Village()
-a.load('save.csv')
-a.start()

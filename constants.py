@@ -13,6 +13,7 @@ import random
 import pygame
 from enums import Enum
 from pygame import Vector2
+import item_database
 
 
 class GameMouseData:
@@ -33,7 +34,7 @@ BG_BTN = '#C8D1F7'
 BG_BTN_SHADOW = '#242429'
 SIZE_MENU_BTN = Vector2(300, 80)
 MOUSE = GameMouseData()
-
+items_db = item_database.init()
 
 """Игрок"""
 

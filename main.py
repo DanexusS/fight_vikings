@@ -15,16 +15,16 @@ import item_database
 import village_generation
 
 from persons_and_camera import Camera
-from csv import QUOTE_NONNUMERIC
 
 from player_class import *
 from interface import *
 from constants import *
+from village import Village
 
 
 # Создание окна pygame
 pygame.init()
-items_db = item_database.init()
+
 
 size = width, height = WIDTH, HEIGHT
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -250,29 +250,32 @@ class MainGame:
                         thread = threading.Thread(target=self.draw_load)
                         thread.daemon = True
                         thread.start()
+                        main_village = Village()
+                        main_village.load('save.csv')
+                        main_village.start()
 
-                        # Создание объектов
-                        self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
-
-                        # Типы предметов, которые можно класть в слоты снаряжения
-                        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
-                                         ItemType.Equipment, ItemType.Equipment]
-
-                        self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
-                                           Inventory(5, 5, [items_db["Sword"]]))
-
-                        # Инициализация интерфейсов в списке
-                        # # Первый интерфейс - это сам инвентарь
-                        # # Второй - инвентарь снаряжения
-                        self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
-                                                            InterfaceTypes.Regular),
-                                                  Interface(self.player.equipment_inventory, Vector2(5, 5),
-                                                            Vector2(50, 875),
-                                                            InterfaceTypes.Equipment, allowed_types)]
-
-                        self.camera = Camera()
-
-                        self.main_game()
+            #             # Создание объектов
+            #             self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+            #
+            #             # Типы предметов, которые можно класть в слоты снаряжения
+            #             allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
+            #                              ItemType.Equipment, ItemType.Equipment]
+            #
+            #             self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
+            #                                Inventory(5, 5, [items_db["Sword"]]))
+            #
+            #             # Инициализация интерфейсов в списке
+            #             # # Первый интерфейс - это сам инвентарь
+            #             # # Второй - инвентарь снаряжения
+            #             self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
+            #                                                 InterfaceTypes.Regular),
+            #                                       Interface(self.player.equipment_inventory, Vector2(5, 5),
+            #                                                 Vector2(50, 875),
+            #                                                 InterfaceTypes.Equipment, allowed_types)]
+            #
+            #             self.camera = Camera()
+            #
+            #             self.main_game()
             pygame.display.flip()
 
 
