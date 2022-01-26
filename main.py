@@ -8,6 +8,7 @@
     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 """
 
+
 import sys
 import threading
 
@@ -81,7 +82,7 @@ class MainGame:
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
-    def inventory_opened(self):
+    def inventory_opened(self, from_n):
         thread = threading.Thread(target=self.player_interfaces[0].render_slots(screen))
         thread.daemon = True
         thread.start()
@@ -104,7 +105,7 @@ class MainGame:
                         if MOUSE.slot_hovered_over:
                             MOUSE.slot_hovered_over.mouse_hovered = False
                             MOUSE.slot_hovered_over = None
-                        self.on_inventory_close(self.player_interfaces)
+                        self.on_inventory_close(self.player_interfaces, from_n)
 
             MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
@@ -130,14 +131,18 @@ class MainGame:
                 screen.blit(slot_image, rect)
             pygame.display.flip()
 
-    def on_inventory_close(self, interfaces):
+    def on_inventory_close(self, interfaces, from_n):
         i = 0
         for interface in interfaces:
             interface.save(i)
             i += 1
-        self.main_game()
+        if from_n:
+            self.main_village.load('save.csv')
+            self.main_village.start()
+        else:
+            self.main_game()
 
-    def on_inventory_open(self):
+    def on_inventory_open(self, from_n=0):
         fieldnames = ["item", "amount"]
 
         for i in range(len(self.player_interfaces)):
@@ -157,7 +162,7 @@ class MainGame:
 
                 row += 1
 
-        self.inventory_opened()
+        self.inventory_opened(from_n)
 
     def main_game(self):
         screen.fill(BG)
@@ -169,18 +174,20 @@ class MainGame:
                     running_game = False
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
-                        screen.fill(BG)
-                        self.draw_main_menu()
+                        self.main_village.main_theme.stop()
+                        self.main_village.load('save.csv')
+                        self.main_village.start()
                     if event.key == pygame.K_i and self.player.state != PlayerStates.Dead:
                         screen.fill(BG_COLOR)
-                        self.on_inventory_open()
+                        self.on_inventory_open(0)
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                     if self.player.state == PlayerStates.Dead and \
                             pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and \
                             pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y:
-                        screen.fill(BG)
-                        self.draw_main_menu()
+                        self.main_village.main_theme.stop()
+                        self.main_village.load('save.csv')
+                        self.main_village.start()
 
                 self.player.update(event)
 
@@ -211,7 +218,7 @@ class MainGame:
 
             # Обновление экрана
             pygame.display.flip()
-            pygame.time.delay(10)
+            pygame.time.delay(20)
 
     @staticmethod
     def button_hover(mouse_pos: Vector2):
@@ -245,32 +252,10 @@ class MainGame:
                         thread = threading.Thread(target=self.draw_load)
                         thread.daemon = True
                         thread.start()
-                        main_village = Village(self)
-                        main_village.load('save.csv')
-                        main_village.start()
 
-            #             # Создание объектов
-            #             self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
-            #
-            #             # Типы предметов, которые можно класть в слоты снаряжения
-            #             allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
-            #                              ItemType.Equipment, ItemType.Equipment]
-            #
-            #             self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
-            #                                Inventory(5, 5, [ITEMS_DB["Sword"]]))
-            #
-            #             # Инициализация интерфейсов в списке
-            #             # # Первый интерфейс - это сам инвентарь
-            #             # # Второй - инвентарь снаряжения
-            #             self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
-            #                                                 InterfaceTypes.Regular),
-            #                                       Interface(self.player.equipment_inventory, Vector2(5, 5),
-            #                                                 Vector2(50, 875),
-            #                                                 InterfaceTypes.Equipment, allowed_types)]
-            #
-            #             self.camera = Camera()
-            #
-            #             self.main_game()
+                        self.main_village = Village(self)
+                        self.main_village.load('save.csv')
+                        self.main_village.start()
             pygame.display.flip()
 
 

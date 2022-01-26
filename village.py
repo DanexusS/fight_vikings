@@ -24,9 +24,11 @@ class Village:
     def __init__(self, main_game):
         self.houses = {'castle': 1, 'brewery': 1, 'blacksmith': 1, 'tower': 1}
         self.resource = {'gold': 1, 'wood': 1, 'iron': 1}
+
         self.main_game = main_game
 
-        # Создание объектов
+    def set_main_game(self):
+        set_const()
         self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
 
         # Типы предметов, которые можно класть в слоты снаряжения
@@ -132,7 +134,7 @@ class Village:
         X = 359
         Y = 199
         used = {'gold': 0, 'wood': 0, 'iron': 0}
-        main_theme = pygame.mixer.Sound('Last_version.wav')
+        self.main_theme = pygame.mixer.Sound('Last_version.wav')
 
         zamok = pygame.image.load('images/castle.png')
         zamok_clicked = pygame.image.load('images/castle_clicked.png')
@@ -427,7 +429,7 @@ class Village:
             screen.blit(money, money_pos)
             screen.blit(woods, woods_pos)
             screen.blit(iron, iron_pos)
-        main_theme.play(-1, 0, 500)
+        self.main_theme.play(-1, 0, 500)
         running = True
         while running:
             for event in pygame.event.get():
@@ -493,12 +495,14 @@ class Village:
                     elif war.rect.collidepoint(cur_pos):
                         fight = True
                     elif esc.rect.collidepoint(cur_pos):
+                        screen.fill(BG_COLOR)
                         self.save('save.csv')
-                        main_theme.stop()
-                        exit(0)
+                        self.main_theme.stop()
+                        self.main_game.draw_main_menu()
                     elif backpack.rect.collidepoint(cur_pos):
                         screen.fill(BG_COLOR)
-                        self.main_game.on_inventory_open()
+                        self.save('save.csv')
+                        self.main_game.on_inventory_open(1)
                     else:
                         set_top('')
                         set_bottom('')
@@ -543,6 +547,12 @@ class Village:
                         up = False
 
                 if fight:
+                    thread = threading.Thread(target=self.main_game.draw_load)
+                    thread.daemon = True
+                    thread.start()
+
+                    self.set_main_game()
+                    self.save('save.csv')
                     self.main_game.main_game()
 
             update()
