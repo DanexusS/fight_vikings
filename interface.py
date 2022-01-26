@@ -7,13 +7,14 @@
 
     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 """
-from _csv import QUOTE_NONNUMERIC
 
+
+from csv import QUOTE_NONNUMERIC, DictWriter
+
+from enums import Enum
+
+from general_stuff import *
 from inventory_obj import *
-from constants import *
-
-from main_functions import load_image
-from csv import DictWriter
 
 
 pygame.init()

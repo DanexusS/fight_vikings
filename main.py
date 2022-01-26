@@ -13,7 +13,7 @@ import threading
 
 from player_class import *
 from interface import *
-from constants import *
+from general_stuff import *
 from village import Village
 
 # Создание окна pygame
