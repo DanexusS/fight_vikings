@@ -7,7 +7,7 @@
 
     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 """
-
+from _csv import QUOTE_NONNUMERIC
 
 from inventory_obj import *
 from constants import *
@@ -183,11 +183,13 @@ class Interface:
             if not MOUSE.start_drag_slot:
                 MOUSE.current_interface = None
 
-    def save(self):
-        save_data = []
+    def save(self, _id):
+        fieldnames = ["item", "amount"]
+        file = open(f"saves/inventory_{_id}.csv", "w", newline="")
+        writer = DictWriter(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC)
 
+        writer.writeheader()
         for row in self.inventory.slots:
             for slot in row:
-                save_data.append(slot.save_data())
-
-        return save_data
+                writer.writerow(slot.save_data())
+        file.close()

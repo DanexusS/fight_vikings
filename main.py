@@ -50,6 +50,7 @@ class MainGame:
         self.player = None
         self.village = None
         self.camera = None
+        self.player_interfaces = None
 
     @staticmethod
     def draw_menu():
@@ -87,19 +88,7 @@ class MainGame:
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
     def inventory_opened(self):
-        # Типы предметов, которые можно класть в слоты снаряжения
-        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
-                         ItemType.Equipment, ItemType.Equipment]
-
-        # Инициализация интерфейсов в списке
-        # # Первый интерфейс - это сам инвентарь
-        # # Второй - инвентарь снаряжения
-        player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
-                                       InterfaceTypes.Regular),
-                             Interface(self.player.equipment_inventory, Vector2(5, 5), Vector2(50, 875),
-                                       InterfaceTypes.Equipment, allowed_types)]
-            
-        thread = threading.Thread(target=player_interfaces[0].render_slots(screen))
+        thread = threading.Thread(target=self.player_interfaces[0].render_slots(screen))
         thread.daemon = True
         thread.start()
 
@@ -121,13 +110,13 @@ class MainGame:
                         if MOUSE.slot_hovered_over:
                             MOUSE.slot_hovered_over.mouse_hovered = False
                             MOUSE.slot_hovered_over = None
-                        self.on_inventory_close(player_interfaces)
+                        self.on_inventory_close(self.player_interfaces)
 
             MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
             screen.fill(BG_COLOR)
             # Отрисовка слотов у инвентарей и проверка на перекрытие их мышкой
-            for interface in player_interfaces:
+            for interface in self.player_interfaces:
                 interface.interface_check()
                 interface.render_slots(screen)
 
@@ -148,30 +137,30 @@ class MainGame:
             pygame.display.flip()
 
     def on_inventory_close(self, interfaces):
-        fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
-        file = open("inventory.csv", "w", newline="")
-        writer = DictWriter(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC)
-
-        writer.writeheader()
+        i = 0
         for interface in interfaces:
-            save_text = interface.save()
-
-            writer.writerows(save_text)
-        file.close()
+            interface.save(i)
+            i += 1
         self.main_game()
 
     def on_inventory_open(self):
-        # fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
-        # file = open("inventory.csv", "w", newline="")
-        # writer = DictWriter(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC)
-        #
-        # writer.writeheader()
-        # for interface in interfaces:
-        #     save_text = interface.save()
-        #
-        #     writer.writerows(save_text)
-        # file.close()
-        # self.main_game()
+        fieldnames = ["item", "amount"]
+
+        for i in range(len(self.player_interfaces)):
+            file = open(f"inventory_{i}.csv", newline="")
+            reader = list(DictReader(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC))[1:]
+            row_count = len(self.player_interfaces[i].inventory.slots)
+            row = 0
+            column = 0
+            for line in reader:
+                if row >= row_count:
+                    row = 0
+                    column += 1
+
+                slot = InventorySlot(items_db[line["title"]], int(line["amount"]))
+                self.player_interfaces[i].inventory.set_slot(row, column, slot)
+
+                row += 1
 
         self.inventory_opened()
 
@@ -264,8 +253,23 @@ class MainGame:
 
                         # Создание объектов
                         self.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+
+                        # Типы предметов, которые можно класть в слоты снаряжения
+                        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
+                                         ItemType.Equipment, ItemType.Equipment]
+
                         self.player = Hero(self.village, MAP_SIZE * 2, Inventory(60, 10),
                                            Inventory(5, 5, [items_db["Sword"]]))
+
+                        # Инициализация интерфейсов в списке
+                        # # Первый интерфейс - это сам инвентарь
+                        # # Второй - инвентарь снаряжения
+                        self.player_interfaces = [Interface(self.player.inventory, Vector2(5, 5), Vector2(50, 62.5),
+                                                            InterfaceTypes.Regular),
+                                                  Interface(self.player.equipment_inventory, Vector2(5, 5),
+                                                            Vector2(50, 875),
+                                                            InterfaceTypes.Equipment, allowed_types)]
+
                         self.camera = Camera()
 
                         self.main_game()

@@ -24,8 +24,8 @@ class InventorySlot:
         self.after_update = after_update if after_update else []
 
     def save_data(self):
-        fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
-        data = [self.item.title, self.amount, self.allowed_types, self.before_update, self.after_update]
+        fieldnames = ["item", "amount"]
+        data = [self.item.title, self.amount]
         info = {}
 
         for i in range(len(data)):
@@ -69,6 +69,9 @@ class Inventory:
                 self.add_item(item)
 
         self.interface = None
+
+    def set_slot(self, row, column, slot):
+        self.slots[row][column] = slot
 
     def empty_slot_count(self) -> int:
         counter = 0
