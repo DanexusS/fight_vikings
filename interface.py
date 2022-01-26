@@ -11,7 +11,9 @@
 
 from inventory_obj import *
 from constants import *
+
 from main_functions import load_image
+from csv import DictWriter
 
 
 pygame.init()
@@ -180,3 +182,12 @@ class Interface:
             MOUSE.slot_hovered_over = None
             if not MOUSE.start_drag_slot:
                 MOUSE.current_interface = None
+
+    def save(self):
+        save_data = []
+
+        for row in self.inventory.slots:
+            for slot in row:
+                save_data.append(slot.save_data())
+
+        return save_data

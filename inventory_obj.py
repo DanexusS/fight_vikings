@@ -13,17 +13,24 @@ from items import *
 
 
 class InventorySlot:
-    def __init__(self, item: AbstractItem, amount: int, allowed_types: list[ItemType] = None):
-        if allowed_types is None:
-            allowed_types = []
-
+    def __init__(self, item: AbstractItem, amount: int, before_update=None, after_update=None,
+                 allowed_types: list[ItemType] = None):
         self.item = item
         self.amount = amount
-        self.allowed_types = allowed_types
+        self.allowed_types = allowed_types if allowed_types else []
         self.ui_display = item.image
         self.mouse_hovered = False
-        self.before_update = []
-        self.after_update = []
+        self.before_update = before_update if before_update else []
+        self.after_update = after_update if after_update else []
+
+    def save_data(self):
+        fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
+        data = [self.item.title, self.amount, self.allowed_types, self.before_update, self.after_update]
+        info = {}
+
+        for i in range(len(data)):
+            info[fieldnames[i]] = data[i]
+        return info
 
     def update_slot(self, item: AbstractItem = None, amount: int = 0):
         if self.before_update:

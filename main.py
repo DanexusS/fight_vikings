@@ -11,13 +11,12 @@
 
 import sys
 import threading
-
-import pygame.time
-
 import item_database
 import village_generation
 
 from persons_and_camera import Camera
+from csv import QUOTE_NONNUMERIC
+
 from player_class import *
 from interface import *
 from constants import *
@@ -122,7 +121,7 @@ class MainGame:
                         if MOUSE.slot_hovered_over:
                             MOUSE.slot_hovered_over.mouse_hovered = False
                             MOUSE.slot_hovered_over = None
-                        self.main_game()
+                        self.on_inventory_close(player_interfaces)
 
             MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
@@ -148,6 +147,34 @@ class MainGame:
                 screen.blit(slot_image, rect)
             pygame.display.flip()
 
+    def on_inventory_close(self, interfaces):
+        fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
+        file = open("inventory.csv", "w", newline="")
+        writer = DictWriter(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC)
+
+        writer.writeheader()
+        for interface in interfaces:
+            save_text = interface.save()
+
+            writer.writerows(save_text)
+        file.close()
+        self.main_game()
+
+    def on_inventory_open(self):
+        # fieldnames = ["item", "amount", "allowed_types", "before_update", "after_update"]
+        # file = open("inventory.csv", "w", newline="")
+        # writer = DictWriter(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC)
+        #
+        # writer.writeheader()
+        # for interface in interfaces:
+        #     save_text = interface.save()
+        #
+        #     writer.writerows(save_text)
+        # file.close()
+        # self.main_game()
+
+        self.inventory_opened()
+
     def main_game(self):
         screen.fill(BG)
 
@@ -162,7 +189,7 @@ class MainGame:
                         self.draw_main_menu()
                     if event.key == pygame.K_i and self.player.state != PlayerStates.Dead:
                         screen.fill(BG_COLOR)
-                        self.inventory_opened()
+                        self.on_inventory_open()
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                     if self.player.state == PlayerStates.Dead and \
