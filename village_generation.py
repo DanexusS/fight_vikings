@@ -41,11 +41,11 @@ class House(pygame.sprite.Sprite):
 
 
 class TownHall(pygame.sprite.Sprite):
-    def __init__(self, village, pos, angle):
+    def __init__(self, village, pos, angle, other):
         super().__init__(village.townhall_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
         x, y = pos
-        self.hp = 3
+        self.hp = 250
         self.status = 'normal'
         self.angle = angle
         # Установка картинок
@@ -66,6 +66,7 @@ class TownHall(pygame.sprite.Sprite):
         self.is_dmg = False
 
         self.village = village
+        self.other = other
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -77,9 +78,9 @@ class TownHall(pygame.sprite.Sprite):
                 self.village.gold += random.randint(15, 40)
                 self.village.tree += random.randint(10, 40)
                 self.village.metal += random.randint(5, 30)
-                self.main_village.add_res((('gold', self.village.gold),
-                                           ('wood', self.village.tree),
-                                           ('iron', self.village.metal)))
+                self.other.add_res((('gold', self.village.gold),
+                                    ('wood', self.village.tree),
+                                    ('iron', self.village.metal)))
         return self.status
 
 
@@ -115,7 +116,7 @@ class Tree(pygame.sprite.Sprite):
 
 # =======================================================================================================
 class Village:
-    def __init__(self, width, height):
+    def __init__(self, width, height, other):
         # Переменные поля и клеток
         self.width = width
         self.height = height
@@ -157,7 +158,7 @@ class Village:
                 y = self.top + i * self.cell_size
                 self.board[i][f"{x} {y}"] = Grass(self, (x, y))
         # Генерация
-        self.generation()
+        self.generation(other)
 
     def set_view(self, left, top, cell_size=GAME_CELL_SIZE):
         # Установка новых значений
@@ -178,7 +179,7 @@ class Village:
                     if random.randint(1, 7) == 1:
                         self.enemies.append(persons_and_camera.Enemy(self, (x1, y1)))
 
-    def generation(self):
+    def generation(self, other):
         # Пока не сгенерируеться без ошибки (шанс на ошибку примерно 1 к 40)
         while True:
             try:
@@ -336,7 +337,7 @@ class Village:
                             self.board[iy + i][f"{x + GAME_CELL_SIZE * j} {y + GAME_CELL_SIZE * i}"] = Grass(self, (
                             x + GAME_CELL_SIZE * j, y + GAME_CELL_SIZE * i))
                 # Добавление ратуши, сейчас для того что бы перекрыть всё остальное
-                self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3])
+                self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3], other)
                 self.Town_Hall = self.board[data[0]][f"{data[1]} {data[2]}"]
                 # Если всё сработало - выходим из цикла
                 break

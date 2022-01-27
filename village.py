@@ -29,7 +29,7 @@ class Village:
 
     def regen_village(self):
         set_const()
-        self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
+        self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE, self)
 
         # Типы предметов, которые можно класть в слоты снаряжения
         allowed_types = [ItemType.Weapon, ItemType.Helmet, ItemType.Chestplate,
