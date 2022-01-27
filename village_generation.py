@@ -45,7 +45,7 @@ class TownHall(pygame.sprite.Sprite):
         super().__init__(village.townhall_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
         x, y = pos
-        self.hp = 4
+        self.hp = 300
         self.status = 'normal'
         self.angle = angle
         # Установка картинок
