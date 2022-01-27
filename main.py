@@ -128,7 +128,7 @@ class MainGame:
             # Отображение всех характеристик героя
             y = 0
             for key, value in self.player.attributes.items():
-                text = ATTRIBUTE_FONT.render(f"{RUS_ATTRIBUTES[key].capitalize()} -> {value.current_value}",
+                text = ATTRIBUTE_FONT.render(f"{RUS_ATTRIBUTES[key].capitalize()} -> {round(value.current_value, 2)}",
                                              True, BG_BTN)
                 screen.blit(text, (1425, y * 35 + 52.5))
                 y += 1
