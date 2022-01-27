@@ -81,6 +81,17 @@ class MainGame:
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
+    @staticmethod
+    def draw_complete():
+        surf = load_image('bg_complete.png')
+        rect = surf.get_rect()
+        screen.blit(surf, rect)
+
+        # Кнопка выход
+        pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
+        pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
+        screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
+
     def inventory_opened(self, from_main_base):
         thread = threading.Thread(target=self.player_interfaces[0].render_slots(screen))
         thread.daemon = True
@@ -181,7 +192,7 @@ class MainGame:
                         self.on_inventory_open(0)
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     mouse_pos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-                    if self.player.state == PlayerStates.Dead and \
+                    if (self.player.state == PlayerStates.Dead or self.village.Town_Hall.status == 'destroed') and \
                             pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and \
                             pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y:
                         self.main_village.main_theme.stop()
@@ -211,8 +222,11 @@ class MainGame:
             # Отображение всей деревни
             self.village.render(screen)
 
+            # Отображение экрана завершения миссии, если игрок разрушил ратушу
+            if self.village.Town_Hall.status == 'destroed':
+                self.draw_complete()
             # Отображение экрана смерти, если игрок умер
-            if self.player.state == PlayerStates.Dead:
+            elif self.player.state == PlayerStates.Dead:
                 self.draw_died()
 
             # Обновление экрана
