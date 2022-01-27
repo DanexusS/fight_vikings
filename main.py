@@ -27,6 +27,7 @@ pygame.display.set_caption('Fight Vikings')
 # Нужные константы для игры
 FONT_BTN = pygame.font.SysFont('Arial', 50)
 FONT_LOAD = pygame.font.SysFont('Impact', 60)
+FONT_C = pygame.font.SysFont('Impact', 20)
 
 # Позиции кнопок в меню
 pos_exit = (width // 2 - SIZE_MENU_BTN.x // 2, height // 2 + 300 - SIZE_MENU_BTN.y // 2)
@@ -81,8 +82,7 @@ class MainGame:
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
-    @staticmethod
-    def draw_complete():
+    def draw_complete(self):
         surf = load_image('bg_complete.png')
         rect = surf.get_rect()
         screen.blit(surf, rect)
@@ -91,6 +91,11 @@ class MainGame:
         pygame.draw.rect(screen, BG_BTN_SHADOW, (pos_exit[0] - 4, pos_exit[1] + 4, SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
+
+        # Отображение информации
+        screen.blit(FONT_C.render(f"+{self.village.gold}", True, (0, 240, 0)), (1670, 85))
+        screen.blit(FONT_C.render(f"+{self.village.tree}", True, (0, 240, 0)), (1765, 85))
+        screen.blit(FONT_C.render(f"+{self.village.metal}", True, (0, 240, 0)), (1865, 85))
 
     def inventory_opened(self, from_main_base):
         thread = threading.Thread(target=self.player_interfaces[0].render_slots(screen))

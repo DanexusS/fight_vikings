@@ -25,6 +25,7 @@ class House(pygame.sprite.Sprite):
         self.rect.x = int(pos[0])
         self.rect.y = int(pos[1])
         self.is_dmg = False
+        self.village = village
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -33,6 +34,9 @@ class House(pygame.sprite.Sprite):
             if self.hp < 1:
                 self.status = 'destroed'
                 self.image = size_img('housedie.png')
+                self.village.gold += random.randint(2, 4)
+                self.village.tree += random.randint(3, 5)
+                self.village.metal += random.randint(1, 3)
         return self.status
 
 
@@ -61,6 +65,8 @@ class TownHall(pygame.sprite.Sprite):
         self.rect.y = y
         self.is_dmg = False
 
+        self.village = village
+
     def damage(self, dmg):
         if self.status == 'normal':
             self.is_dmg = True
@@ -68,6 +74,9 @@ class TownHall(pygame.sprite.Sprite):
             if self.hp < 1:
                 self.status = 'destroed'
                 self.image = size_img(f"townhall{self.angle}.png", 3)
+                self.village.gold += random.randint(15, 40)
+                self.village.tree += random.randint(10, 40)
+                self.village.metal += random.randint(5, 30)
         return self.status
 
 
@@ -124,6 +133,10 @@ class Village:
         self.attack_sprites = pygame.sprite.Group()
 
         self.Town_Hall = ''
+
+        self.gold = 0
+        self.tree = 0
+        self.metal = 0
 
         self.enemies = []
         # Пустые клетки вокруг деревни
