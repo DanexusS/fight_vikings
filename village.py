@@ -385,13 +385,15 @@ class Village:
                     finded = cur.execute("""SELECT * From items WHERE craft = ?""", (';'.join(find),))
                     for elem in finded:
                         spis.append(elem)
+                print(spis)
                 if len(spis) > 0:
                     forged = spis[-1]
                     used_in = forged[8].split(';')
                     self.resource['gold'] -= int(used_in[0])
                     self.resource['wood'] -= int(used_in[1])
                     self.resource['iron'] -= int(used_in[2])
-                # АХТУНГА НУЖЕН ДАНЕКСУС С ИНВЕНТАРЁМ
+                    name = forged[1]
+                    self.main_game.player.inventory.add_item(ITEMS_DB[name])
                 recount()
 
         def set_top(text):
@@ -423,6 +425,7 @@ class Village:
                 sprites.draw(screen)
                 screen.blit(top_frame, top_frame_pos)
                 screen.blit(bottom_frame, bottom_frame_pos)
+                recount()
             else:
                 screen.blit(blacksmth_back, (0, 0))
                 sprites_for_forge.draw(screen)

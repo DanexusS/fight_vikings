@@ -201,7 +201,8 @@ class MainGame:
                             pos_exit[0] <= mouse_pos.x <= pos_exit[0] + SIZE_MENU_BTN.x and \
                             pos_exit[1] <= mouse_pos.y <= pos_exit[1] + SIZE_MENU_BTN.y:
                         self.main_village.main_theme.stop()
-                        self.main_village.load('save.csv')
+                        if self.player.state == PlayerStates.Dead:
+                            self.main_village.load('save.csv')
                         self.main_village.start()
 
                 self.player.update(event)
