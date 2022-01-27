@@ -67,6 +67,7 @@ class Hero(pygame.sprite.Sprite):
         self.angle_attack_move = None
         self.count_attack = -1
         self.weapon = Weapon(village, 'sword')
+        self.block_attack = False
 
         # Инвентари
         self.inventory = inventory
@@ -121,6 +122,9 @@ class Hero(pygame.sprite.Sprite):
             if collide:
                 self.rect = self.rect.move(-x, -y)
 
+    def reload_attack(self):
+        self.block_attack = False
+
     def attack(self, village):
         if self.state == PlayerStates.Dead:
             return
@@ -138,6 +142,7 @@ class Hero(pygame.sprite.Sprite):
                     search_angle(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
                                  Vector2(self.rect.x, self.rect.y))[1] + MIN_COE * 40
                 self.count_attack = 10
+                self.block_attack = True
             # Отрисовка и шаг
             step_and_draw_attack(self, size_step_attack, PLAYER_CENTER)
             # Атака
@@ -148,6 +153,9 @@ class Hero(pygame.sprite.Sprite):
                 self.is_attack[0] = False
                 for sprite in village.attack_sprites:
                     sprite.is_dmg = False
+                timer = threading.Timer(0.5 * (1 + self.attributes[Attributes.Attack_Speed].current_value),
+                                        self.reload_attack)
+                timer.start()
         # Круговая атака
         elif self.is_attack[1]:
             size_step_attack = 12
@@ -157,6 +165,7 @@ class Hero(pygame.sprite.Sprite):
                     search_angle(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
                                  Vector2(self.rect.x, self.rect.y))
                 self.count_attack = 360 // size_step_attack
+                self.block_attack = True
             # Отрисовка и шаг
             step_and_draw_attack(self, size_step_attack, PLAYER_CENTER)
             # Атака
@@ -167,6 +176,9 @@ class Hero(pygame.sprite.Sprite):
                 self.is_attack[1] = False
                 for sprite in village.attack_sprites:
                     sprite.is_dmg = False
+                timer = threading.Timer(0.5 * (1 + self.attributes[Attributes.Attack_Speed].current_value),
+                                        self.reload_attack)
+                timer.start()
         else:
             village.sword_sprites.remove(self.weapon)
             self.weapon.kill()
@@ -184,10 +196,10 @@ class Hero(pygame.sprite.Sprite):
     def update(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                if not any(self.is_attack):
+                if not any(self.is_attack) and not self.block_attack:
                     self.is_attack[0] = True
             if event.button == 3:
-                if not any(self.is_attack):
+                if not any(self.is_attack) and not self.block_attack:
                     self.is_attack[1] = True
 
         if event.type == pygame.KEYDOWN:

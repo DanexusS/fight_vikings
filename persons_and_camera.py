@@ -26,7 +26,7 @@ class Enemy(pygame.sprite.Sprite):
 
         # Переменные, прочие
         self.pos = [self.rect.x, self.rect.y]
-        self.hp = 80
+        self.hp = 50
         self.status = 'normal'
         self.is_dmg = False
         self.obstacle = [False, None]
@@ -39,6 +39,7 @@ class Enemy(pygame.sprite.Sprite):
         self.angle_attack_move = None
         self.count_attack = -1
         self.weapon = Weapon(village, 'sword')
+        self.block_attack = False
 
     def damage(self, dmg):
         if self.status == 'normal':
@@ -48,6 +49,9 @@ class Enemy(pygame.sprite.Sprite):
                 self.status = 'destroyed'
                 self.hp = 0
         return self.status
+
+    def reload_attack(self):
+        self.block_attack = False
 
     def attack(self, village):
         village.sword_sprites.remove(self.weapon)
@@ -62,16 +66,19 @@ class Enemy(pygame.sprite.Sprite):
                     search_angle(PLAYER_CENTER, Vector2(self.rect.x, self.rect.y))[0] + 40, \
                     search_angle(PLAYER_CENTER, Vector2(self.rect.x, self.rect.y))[1] + MIN_COE * 40
                 self.count_attack = 10
+                self.block_attack = True
             # Отрисовка и шаг
             step_and_draw_attack(self, size_step_attack, self.rect)
             # Атака
-            self.weapon.attack(4, village, 'Hero')
+            self.weapon.attack(3, village, 'Hero')
             # Конец цикла атаки
             if self.count_attack == 0:
                 self.count_attack = -1
                 self.is_attack = False
                 for sprite in village.attack_sprites:
                     sprite.is_dmg = False
+                timer = threading.Timer(1, self.reload_attack)
+                timer.start()
         else:
             village.sword_sprites.remove(self.weapon)
             self.weapon.kill()
@@ -171,7 +178,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect = self.rect.move(self.move_vectors['up'].x, self.move_vectors['up'].y)
                 self.check_avoidance(village, self.move_vectors['up'].x, self.move_vectors['up'].y)
         # Атака
-        if not self.is_attack and distance < PLAYER_SIZE * 1.6:
+        if not self.is_attack and distance < PLAYER_SIZE * 1.6 and not self.block_attack:
             self.is_attack = True
         self.attack(village)
 
