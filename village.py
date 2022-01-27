@@ -27,6 +27,7 @@ class Village:
 
         self.main_game = main_game
 
+    def regen_village(self):
         set_const()
         self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
 
@@ -137,6 +138,7 @@ class Village:
         Y = 199
         used = {'gold': 0, 'wood': 0, 'iron': 0}
         self.main_theme = pygame.mixer.Sound('Last_version.wav')
+        self.regen_village()
 
         zamok = pygame.image.load('images/castle.png')
         zamok_clicked = pygame.image.load('images/castle_clicked.png')
