@@ -64,6 +64,7 @@ class Village:
                 self.resource['wood'] -= 100 * cur
                 self.resource['iron'] -= 100 * cur
                 self.houses['castle'] += 1
+                self.main_game.player.attributes[Attributes.Health].current_value += 15 * self.houses['castle']
         elif name == 'bre':
             cur = self.houses['brewery']
             if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 50 * cur >= 0 and \
@@ -72,6 +73,7 @@ class Village:
                 self.resource['wood'] -= 50 * cur
                 self.resource['iron'] -= 5 * cur
                 self.houses['brewery'] += 1
+                self.main_game.player.attributes[Attributes.Move_Speed].current_value += 5
         elif name == 'bla':
             cur = self.houses['blacksmith']
             if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 15 * cur >= 0 and \
@@ -80,6 +82,7 @@ class Village:
                 self.resource['wood'] -= 15 * cur
                 self.resource['iron'] -= 100 * cur
                 self.houses['blacksmith'] += 1
+                self.main_game.player.attributes[Attributes.Armor].current_value += 7.5
         elif name == 'tow':
             cur = self.houses['tower']
             if self.resource['gold'] - 100 * cur >= 0 and self.resource['wood'] - 200 * cur >= 0 and \
