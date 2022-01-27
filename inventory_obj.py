@@ -57,21 +57,17 @@ class InventorySlot:
 
 
 class Inventory:
-    def __init__(self, size: int, num_of_rows: int, default_items=None):
+    def __init__(self, size: int, num_of_rows: int):
         height = size // num_of_rows
         width = size // height
 
         self.slots = [[InventorySlot(AbstractItem(), 0) for __ in range(width)]
                       for _ in range(height)]
 
-        if default_items:
-            for item in default_items:
-                self.add_item(item)
-
         self.interface = None
 
-    def set_slot(self, row, column, slot):
-        self.slots[row][column] = slot
+    def set_slot(self, column, row, slot):
+        self.slots[row][column].update_slot(slot.item, slot.amount)
 
     def empty_slot_count(self) -> int:
         counter = 0

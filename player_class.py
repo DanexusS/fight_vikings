@@ -9,12 +9,12 @@
 """
 
 
-from item_database import ItemType
 from general_stuff import *
 
 from csv import DictReader
 from weapon_class import Weapon
 from enums import Enum
+from item_database import ItemType
 
 
 class PlayerStates(Enum):
@@ -88,7 +88,7 @@ class Hero(pygame.sprite.Sprite):
             return
 
         item = slot.item
-        if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
+        if item.MAIN_TYPE == ItemType.Equipment:
             for buff in item.buffs:
                 self.attributes[buff.affected_attribute].current_value += coe * buff.value
             if item.TYPE == ItemType.Weapon:
@@ -100,7 +100,7 @@ class Hero(pygame.sprite.Sprite):
             self.attributes[Attributes.Health].current_value -= dmg
             if self.attributes[Attributes.Health].current_value < 1:
                 self.state = PlayerStates.Dead
-                self.attributes[Attributes.Health].current_value = AttributeValue()
+                self.attributes[Attributes.Health].current_value = 0
         return self.state
 
     def move_player(self, direction, village):

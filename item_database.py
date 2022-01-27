@@ -26,8 +26,12 @@ class Attributes(Enum):
 class ItemType(Enum):
     Food = 0
     Equipment = 1
-    Weapon = 2
-    Item = 3
+    Helmet = 2
+    Chestplate = 3
+    Pants = 4
+    Boots = 5
+    Weapon = 6
+    Item = 7
 
 
 class ItemBuff:
@@ -40,6 +44,7 @@ class AbstractItem:
     def __init__(self, title: str = ""):
         self.ID = -1
         self.TYPE = ItemType.Item
+        self.MAIN_TYPE = ItemType.Item
         self.title = title
         self.is_stackable = True
         self.image = None
@@ -50,6 +55,7 @@ class FoodItem(AbstractItem):
         super().__init__(title)
 
         self.TYPE = ItemType.Food
+        self.MAIN_TYPE = ItemType.Item
 
     def use_item(self):
         print(self.TYPE)
@@ -57,10 +63,11 @@ class FoodItem(AbstractItem):
 
 #   КЛАСС СНАРЯЖЕНИЯ
 class EquipmentItem(AbstractItem):
-    def __init__(self, title: str, durability: int, buffs: list[ItemBuff] = None):
+    def __init__(self, title: str, durability: int, _type=None, buffs: list[ItemBuff] = None):
         super().__init__(title)
 
-        self.TYPE = ItemType.Equipment
+        self.TYPE = _type
+        self.MAIN_TYPE = ItemType.Equipment
         self.buffs = buffs
         self.is_stackable = False
         self.durability = durability
@@ -69,10 +76,16 @@ class EquipmentItem(AbstractItem):
 #   КЛАСС ОРУЖИЯ
 class WeaponItem(EquipmentItem):
     def __init__(self, title: str, durability: int, damage: int, buffs: list[ItemBuff] = None):
-        super().__init__(title, durability, buffs)
+        super().__init__(title, durability, buffs=buffs)
 
         self.TYPE = ItemType.Weapon
+        self.MAIN_TYPE = ItemType.Equipment
         self.damage = ItemBuff(Attributes.from_value(2), damage)
+
+
+def is_equipment(_type):
+    return _type == "Equipment" or _type == "Helmet" or \
+           _type == "Chestplate" or _type == "Pants" or _type == "Boots"
 
 
 def init():
@@ -89,8 +102,8 @@ def init():
         if _type == "Food":
             item = FoodItem(_title)
             item.is_stackable = elem[3] == "True"
-        elif _type == "Equipment":
-            item = EquipmentItem(_title, durability=int(elem[6]))
+        elif is_equipment(_type):
+            item = EquipmentItem(_title, durability=int(elem[6]), _type=ItemType.from_name(_type.lower()))
         elif _type == "Weapon":
             item = WeaponItem(_title, durability=int(elem[6]), damage=int(elem[7]))
         elif _type == "Item":
@@ -98,7 +111,7 @@ def init():
             item.TYPE = ItemType.Item
             item.is_stackable = elem[3] == "True"
 
-        if _type == "Weapon" or _type == "Equipment":
+        if _type == "Weapon" or is_equipment(_type):
             item.buffs = []
             if elem[5] != -1:
                 for buff_id in map(int, str(elem[5]).split(";")):

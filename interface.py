@@ -10,12 +10,12 @@
 
 
 from csv import QUOTE_NONNUMERIC, DictWriter
-
 from enums import Enum
+from item_database import ItemType
 
 from general_stuff import *
 from inventory_obj import *
-from item_database import ItemType
+
 
 pygame.init()
 
@@ -86,7 +86,7 @@ class Interface:
             screen.blit(title, (MOUSE.position.x + 15, MOUSE.position.y + 15))
 
             extra_info = []
-            if item.TYPE == ItemType.Weapon or item.TYPE == ItemType.Equipment:
+            if item.MAIN_TYPE == ItemType.Equipment:
                 if item.buffs is not None:
                     for buff in item.buffs:
                         text = f"увеличится на {buff.value}" if buff.value > 0 else f"уменьшится на {-buff.value}"

@@ -27,13 +27,12 @@ class Village:
 
         self.main_game = main_game
 
-    def set_main_game(self):
         set_const()
         self.main_game.village = village_generation.Village(MAP_SIZE, MAP_SIZE)
 
         # Типы предметов, которые можно класть в слоты снаряжения
-        allowed_types = [ItemType.Weapon, ItemType.Equipment, ItemType.Equipment,
-                         ItemType.Equipment, ItemType.Equipment]
+        allowed_types = [ItemType.Weapon, ItemType.Helmet, ItemType.Chestplate,
+                         ItemType.Pants, ItemType.Boots]
 
         self.main_game.player = Hero(self.main_game.village, MAP_SIZE * 2, Inventory(60, 10),
                                      Inventory(5, 5))
@@ -551,7 +550,6 @@ class Village:
                     thread.daemon = True
                     thread.start()
 
-                    self.set_main_game()
                     self.save('save.csv')
                     self.main_game.main_game()
 

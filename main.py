@@ -10,7 +10,6 @@
 
 
 import sys
-import threading
 
 from player_class import *
 from interface import *
@@ -82,7 +81,7 @@ class MainGame:
         pygame.draw.rect(screen, BG_BTN, (pos_exit[0], pos_exit[1], SIZE_MENU_BTN.x, SIZE_MENU_BTN.y))
         screen.blit(FONT_BTN.render('Выход', True, (0, 0, 0)), (pos_exit[0] + 85, pos_exit[1] + 10))
 
-    def inventory_opened(self, from_n):
+    def inventory_opened(self, from_main_base):
         thread = threading.Thread(target=self.player_interfaces[0].render_slots(screen))
         thread.daemon = True
         thread.start()
@@ -105,7 +104,7 @@ class MainGame:
                         if MOUSE.slot_hovered_over:
                             MOUSE.slot_hovered_over.mouse_hovered = False
                             MOUSE.slot_hovered_over = None
-                        self.on_inventory_close(self.player_interfaces, from_n)
+                        self.on_inventory_close(self.player_interfaces, from_main_base)
 
             MOUSE.position = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
@@ -131,12 +130,12 @@ class MainGame:
                 screen.blit(slot_image, rect)
             pygame.display.flip()
 
-    def on_inventory_close(self, interfaces, from_n):
+    def on_inventory_close(self, interfaces, from_main_base):
         i = 0
         for interface in interfaces:
             interface.save(i)
             i += 1
-        if from_n:
+        if from_main_base:
             self.main_village.load('save.csv')
             self.main_village.start()
         else:
@@ -146,14 +145,14 @@ class MainGame:
         fieldnames = ["item", "amount"]
 
         for i in range(len(self.player_interfaces)):
-            file = open(f"saves\inventory_{i}.csv", newline="")
+            file = open(f"saves/inventory_{i}.csv", newline="")
             reader = list(DictReader(file, fieldnames, delimiter=";", quoting=QUOTE_NONNUMERIC))[1:]
-            row_count = len(self.player_interfaces[i].inventory.slots)
+            row_count = len(self.player_interfaces[i].inventory.slots[0])
             row = 0
             column = 0
             for line in reader:
                 if row >= row_count:
-                    row = 0
+                    row -= row // row_count * row_count
                     column += 1
 
                 if line["item"] != "":
