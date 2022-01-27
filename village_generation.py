@@ -17,7 +17,7 @@ class House(pygame.sprite.Sprite):
     def __init__(self, village, pos):
         super().__init__(village.houses_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
-        self.hp = 150
+        self.hp = 100
         self.status = 'normal'
         self.image = size_img('house.png')
         self.mask = pygame.mask.from_surface(size_img('mask_house.png'))
@@ -41,7 +41,7 @@ class TownHall(pygame.sprite.Sprite):
         super().__init__(village.townhall_sprites, village.all_sprites, village.collide_sprites, village.attack_sprites)
         # Переменные
         x, y = pos
-        self.hp = 800
+        self.hp = 4
         self.status = 'normal'
         self.angle = angle
         # Установка картинок
@@ -122,6 +122,8 @@ class Village:
         self.sword_sprites = pygame.sprite.Group()
         self.enemies_sprites = pygame.sprite.Group()
         self.attack_sprites = pygame.sprite.Group()
+
+        self.Town_Hall = ''
 
         self.enemies = []
         # Пустые клетки вокруг деревни
@@ -268,7 +270,7 @@ class Village:
                               self.board[coords_square[center][0]][f"{coords_txt[0] + GAME_CELL_SIZE * num} {coords_txt[1]}"].__class__.__name__ != 'Road' and
                               self.board[coords_square[center][0]][f"{coords_txt[0] + GAME_CELL_SIZE * (num // 3 * 4)} {coords_txt[1]}"].__class__.__name__ != 'Road'))):
                         break
-                # Заполнение клеток ратуши
+                # Заполнение клеток ратушой
                 spawn_town_hall = True
                 for coord in coords_square:
                     # Вычисление координат \/
@@ -319,6 +321,7 @@ class Village:
                             x + GAME_CELL_SIZE * j, y + GAME_CELL_SIZE * i))
                 # Добавление ратуши, сейчас для того что бы перекрыть всё остальное
                 self.board[data[0]][f"{data[1]} {data[2]}"] = TownHall(self, (data[1], data[2]), data[3])
+                self.Town_Hall = self.board[data[0]][f"{data[1]} {data[2]}"]
                 # Если всё сработало - выходим из цикла
                 break
             except Exception as exc:
